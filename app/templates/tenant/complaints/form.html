@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Submit Complaint - Resident Portal{% endblock %}
+{% block breadcrumbs %}Resident Portal / <a href="{{ url_for('tenant.complaints') }}">Complaints</a> / Submit{% endblock %}
+{% block content %}
+<div style="max-width: 650px;">
+  <div class="card">
+    <div class="card-header">
+      <h2>Submit Maintenance Request / Grievance</h2>
+    </div>
+
+    <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="category">Category *</label>
+          <select id="category" name="category" class="form-control" required>
+            <option value="PLUMBING">Plumbing (Tap, Leak, Washroom)</option>
+            <option value="ELECTRICAL">Electrical (Light, Switch, Fan)</option>
+            <option value="CLEANING">Cleaning & Housekeeping</option>
+            <option value="WIFI">Wi-Fi & Internet</option>
+            <option value="NOISE">Noise Disturbance</option>
+            <option value="MAINTENANCE">Furniture & Fixture</option>
+            <option value="OTHER">Other Issue</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="priority">Priority *</label>
+          <select id="priority" name="priority" class="form-control" required>
+            <option value="LOW">Low (Can wait a couple days)</option>
+            <option value="MEDIUM" selected>Medium (Standard request)</option>
+            <option value="HIGH">High (Impacts daily routine)</option>
+            <option value="URGENT">Urgent (Immediate attention)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="title">Complaint Subject / Short Summary *</label>
+        <input type="text" id="title" name="title" class="form-control" required placeholder="e.g. Geyser in room not heating properly">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="description">Detailed Description *</label>
+        <textarea id="description" name="description" class="form-control" rows="5" required placeholder="Please describe the issue in detail to help the warden and technicians..."></textarea>
+      </div>
+
+      <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <button type="submit" class="btn btn-primary">Submit Ticket</button>
+        <a href="{{ url_for('tenant.complaints') }}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

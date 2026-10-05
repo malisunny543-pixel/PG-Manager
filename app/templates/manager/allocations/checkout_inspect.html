@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Checkout Inspection - {{ allocation.first_name }} {{ allocation.last_name }}{% endblock %}
+{% block breadcrumbs %}Operations / Checkout Inspection{% endblock %}
+{% block content %}
+<div style="max-width: 850px;">
+  <div class="card">
+    <div class="card-header">
+      <h2>Room & Bed Checkout Inspection</h2>
+      <span class="badge badge-occupied">Room {{ allocation.room_number }} &bull; Bed {{ allocation.bed_number }}</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; font-size: 0.875rem;">
+      <div>
+        <span class="stat-label">Resident Name</span>
+        <p style="font-weight: 600;">{{ allocation.first_name }} {{ allocation.last_name }}</p>
+      </div>
+      <div>
+        <span class="stat-label">Property Branch</span>
+        <p style="font-weight: 500;">{{ allocation.property_name }}</p>
+      </div>
+      <div>
+        <span class="stat-label">Check-in Date</span>
+        <p style="font-weight: 500;">{{ allocation.check_in_date|format_date }}</p>
+      </div>
+      <div>
+        <span class="stat-label">Security Deposit Paid</span>
+        <p style="font-weight: 700; color: var(--primary-700); font-size: 1.125rem;">{{ allocation.total_deposit_received|currency }}</p>
+      </div>
+    </div>
+
+    <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <h3>Itemized Deductions (Damages, Cleaning, Shortages)</h3>
+      <div id="deductions-container" style="margin-top: 1rem;">
+        {% if deductions %}
+          {% for d in deductions %}
+          <div class="deduction-row" style="display: grid; grid-template-columns: 1.5fr 1fr 2.5fr auto; gap: 0.75rem; margin-bottom: 0.75rem; align-items: flex-end;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Category</label>
+              <select name="category[]" class="form-control">
+                <option value="CLEANING" {% if d.category == 'CLEANING' %}selected{% endif %}>Cleaning</option>
+                <option value="DAMAGE" {% if d.category == 'DAMAGE' %}selected{% endif %}>Property Damage</option>
+                <option value="UNPAID_RENT" {% if d.category == 'UNPAID_RENT' %}selected{% endif %}>Unpaid Rent</option>
+                <option value="UNPAID_UTILITIES" {% if d.category == 'UNPAID_UTILITIES' %}selected{% endif %}>Unpaid Utilities</option>
+                <option value="OTHER" {% if d.category == 'OTHER' %}selected{% endif %}>Other</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Amount (₹)</label>
+              <input type="number" step="0.01" name="amount[]" class="form-control" value="{{ d.amount }}">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Reason</label>
+              <input type="text" name="reason[]" class="form-control" value="{{ d.reason }}">
+            </div>
+            <button type="button" class="btn btn-secondary" onclick="this.closest('.deduction-row').remove()" style="padding: 0.5rem 0.75rem;">&times;</button>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="deduction-row" style="display: grid; grid-template-columns: 1.5fr 1fr 2.5fr auto; gap: 0.75rem; margin-bottom: 0.75rem; align-items: flex-end;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Category</label>
+              <select name="category[]" class="form-control">
+                <option value="CLEANING">Cleaning</option>
+                <option value="DAMAGE">Property Damage</option>
+                <option value="UNPAID_RENT">Unpaid Rent</option>
+                <option value="UNPAID_UTILITIES">Unpaid Utilities</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Amount (₹)</label>
+              <input type="number" step="0.01" name="amount[]" class="form-control" placeholder="0.00">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Reason</label>
+              <input type="text" name="reason[]" class="form-control" placeholder="Reason for deduction">
+            </div>
+            <button type="button" class="btn btn-secondary" onclick="this.closest('.deduction-row').remove()" style="padding: 0.5rem 0.75rem;">&times;</button>
+          </div>
+        {% endif %}
+      </div>
+
+      <div style="margin: 1rem 0;">
+        <button type="button" class="btn btn-secondary" onclick="addDeductionRow()">+ Add Deduction Item</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="settlement_notes">Inspection & Inventory Remarks</label>
+        <textarea id="settlement_notes" name="settlement_notes" class="form-control" rows="2" placeholder="Describe room state, keys returned, etc."></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Save Inspection Report</button>
+    </form>
+  </div>
+</div>
+
+<script>
+function addDeductionRow() {
+  const container = document.getElementById('deductions-container');
+  const div = document.createElement('div');
+  div.className = 'deduction-row';
+  div.style.cssText = 'display: grid; grid-template-columns: 1.5fr 1fr 2.5fr auto; gap: 0.75rem; margin-bottom: 0.75rem; align-items: flex-end;';
+  div.innerHTML = `
+    <div class="form-group" style="margin-bottom: 0;">
+      <label class="form-label">Category</label>
+      <select name="category[]" class="form-control">
+        <option value="CLEANING">Cleaning</option>
+        <option value="DAMAGE">Property Damage</option>
+        <option value="UNPAID_RENT">Unpaid Rent</option>
+        <option value="UNPAID_UTILITIES">Unpaid Utilities</option>
+        <option value="OTHER">Other</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom: 0;">
+      <label class="form-label">Amount (₹)</label>
+      <input type="number" step="0.01" name="amount[]" class="form-control" placeholder="0.00">
+    </div>
+    <div class="form-group" style="margin-bottom: 0;">
+      <label class="form-label">Reason</label>
+      <input type="text" name="reason[]" class="form-control" placeholder="Reason for deduction">
+    </div>
+    <button type="button" class="btn btn-secondary" onclick="this.closest('.deduction-row').remove()" style="padding: 0.5rem 0.75rem;">&times;</button>
+  `;
+  container.appendChild(div);
+}
+</script>
+{% endblock %}

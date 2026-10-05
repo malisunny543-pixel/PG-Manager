@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - PG Management System{% endblock %}
+{% block breadcrumbs %}Administration / Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+  <!-- 1. Page Header with Title, Context, and Primary Actions (Section 9.1) -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Admin Operations Dashboard</h1>
+      <p class="page-subtitle">Global overview across all branches, rooms, residents, and cash flows.</p>
+    </div>
+    <div class="page-actions">
+      <a href="/admin/allocations/check-in" class="btn btn-primary">+ New Check-in</a>
+      <a href="/admin/payments/record" class="btn btn-secondary">+ Record Payment</a>
+    </div>
+  </div>
+
+  <!-- 2. Primary KPI Row (Section 9.2) -->
+  <div class="stat-grid">
+    <!-- 1. Total Properties -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">TOTAL PROPERTIES</span>
+        <span class="stat-card-icon">🏢</span>
+      </div>
+      <h3 class="stat-value">{{ total_properties|default(0) }}</h3>
+      <div class="stat-context">Active operational branches</div>
+    </div>
+
+    <!-- 2. Total Beds -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">TOTAL BEDS</span>
+        <span class="stat-card-icon">🛏️</span>
+      </div>
+      <h3 class="stat-value">{{ total_beds|default(0) }}</h3>
+      <div class="stat-context">Capacity across all rooms</div>
+    </div>
+
+    <!-- 3. Occupancy Rate -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">OCCUPANCY RATE</span>
+        <span class="stat-card-icon">📊</span>
+      </div>
+      <h3 class="stat-value">{{ occupancy_rate|default('0.0%') }}</h3>
+      <div class="stat-context">
+        <span class="badge badge-occupied">{{ occupied_beds|default(0) }} Occupied beds</span>
+      </div>
+    </div>
+
+    <!-- 4. Available Beds -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">AVAILABLE BEDS</span>
+        <span class="stat-card-icon">✅</span>
+      </div>
+      <h3 class="stat-value">{{ available_beds|default(0) }}</h3>
+      <div class="stat-context">
+        <span class="badge badge-available">Ready to allocate</span>
+      </div>
+    </div>
+
+    <!-- 5. Under Maintenance -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">UNDER MAINTENANCE</span>
+        <span class="stat-card-icon">🧹</span>
+      </div>
+      <h3 class="stat-value">{{ maintenance_beds|default(0) }}</h3>
+      <div class="stat-context">
+        <span class="badge badge-maintenance">Sanitary clearance required</span>
+      </div>
+    </div>
+
+    <!-- 6. Overdue Rent -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">OVERDUE RENT</span>
+        <span class="stat-card-icon">💳</span>
+      </div>
+      <h3 class="stat-value">{{ overdue_rent|default(0)|currency }}</h3>
+      <div class="stat-context">
+        <span class="badge badge-overdue">Pending collections</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Operational Attention Required (Section 9.3 - Critical > Warning > Informational) -->
+  <div class="card" style="margin-bottom: 1.75rem; border-left: 4px solid var(--primary-600);">
+    <div class="card-header">
+      <div>
+        <h3 style="margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span>⚡</span> Operational Attention Required
+        </h3>
+        <p style="margin: 0.25rem 0 0; font-size: 0.8125rem; color: var(--slate-500);">
+          Immediate actionable conditions across branch facilities and finances.
+        </p>
+      </div>
+      <span class="badge badge-role-admin" style="font-size: 0.6875rem;">Action Items</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+      <!-- Critical: Overdue Rent -->
+      {% if overdue_rent|default(0) > 0 %}
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1.25rem; background: var(--status-overdue-bg); border: 1px solid var(--status-overdue-text); border-left: 4px solid #ef4444; border-radius: var(--radius-sm);">
+        <div style="display: flex; align-items: center; gap: 0.85rem;">
+          <span style="font-size: 1.35rem;">⚠️</span>
+          <div>
+            <strong style="color: var(--status-overdue-text); font-size: 0.9375rem;">{{ overdue_rent|currency }} Outstanding Overdue Balance</strong>
+            <p style="margin: 0.15rem 0 0; font-size: 0.8125rem; color: var(--slate-600);">Tenants with past-due unpaid invoices requiring payment collection or notices.</p>
+          </div>
+        </div>
+        <a href="/admin/invoices?status=OVERDUE" class="btn btn-secondary btn-sm" style="font-size: 0.8125rem; padding: 0.4rem 0.85rem; background: #fff; border-color: #fca5a5; color: #991b1b; font-weight: 600;">
+          Review Defaulters &rarr;
+        </a>
+      </div>
+      {% endif %}
+
+      <!-- Warning: Maintenance Beds -->
+      {% if maintenance_beds|default(0) > 0 %}
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1.25rem; background: var(--status-maintenance-bg); border: 1px solid var(--status-maintenance-border); border-left: 4px solid #f59e0b; border-radius: var(--radius-sm);">
+        <div style="display: flex; align-items: center; gap: 0.85rem;">
+          <span style="font-size: 1.35rem;">🧹</span>
+          <div>
+            <strong style="color: var(--status-maintenance-text); font-size: 0.9375rem;">{{ maintenance_beds }} Bed(s) Under Maintenance Clearance</strong>
+            <p style="margin: 0.15rem 0 0; font-size: 0.8125rem; color: var(--slate-600);">Vacated beds require warden inspection and cleaning sign-off before re-allocation.</p>
+          </div>
+        </div>
+        <a href="/admin/beds?status=UNDER_MAINTENANCE" class="btn btn-secondary btn-sm" style="font-size: 0.8125rem; padding: 0.4rem 0.85rem; background: #fff; border-color: #fde68a; color: #92400e; font-weight: 600;">
+          Inspect &amp; Clear &rarr;
+        </a>
+      </div>
+      {% endif %}
+
+      <!-- Informational: Open Complaints -->
+      {% if open_complaints|default(0) > 0 %}
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1.25rem; background: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #3b82f6; border-radius: var(--radius-sm);">
+        <div style="display: flex; align-items: center; gap: 0.85rem;">
+          <span style="font-size: 1.35rem;">🔧</span>
+          <div>
+            <strong style="color: #1e40af; font-size: 0.9375rem;">{{ open_complaints }} Open Resident Grievance(s)</strong>
+            <p style="margin: 0.15rem 0 0; font-size: 0.8125rem; color: var(--slate-600);">Tenant service and facility tickets requiring staff review, assignment, or resolution.</p>
+          </div>
+        </div>
+        <a href="/admin/complaints" class="btn btn-secondary btn-sm" style="font-size: 0.8125rem; padding: 0.4rem 0.85rem; background: #fff; border-color: #bfdbfe; color: #1e40af; font-weight: 600;">
+          Resolve Tickets &rarr;
+        </a>
+      </div>
+      {% endif %}
+
+      <!-- All Systems Operational Empty State -->
+      {% if maintenance_beds|default(0) == 0 and open_complaints|default(0) == 0 and overdue_rent|default(0) == 0 %}
+      <div style="text-align: center; padding: 2.25rem 1rem; color: var(--slate-500);">
+        <span style="font-size: 2.25rem; display: block; margin-bottom: 0.5rem;">🎉</span>
+        <strong style="color: var(--slate-800); display: block; font-size: 1rem; font-weight: 700;">All Systems Operational</strong>
+        <p style="margin: 0.25rem 0 0; font-size: 0.875rem;">Zero pending maintenance bottlenecks, unresolved complaints, or past-due balances.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- 4. Bed Capacity & Lifecycle Distribution (Section 9.4) -->
+  <div class="card" style="margin-bottom: 1.75rem;">
+    <div class="card-header">
+      <div>
+        <h3 style="margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span>🛏️</span> Bed Capacity &amp; Lifecycle Distribution
+        </h3>
+        <p style="margin: 0.25rem 0 0; font-size: 0.8125rem; color: var(--slate-500);">
+          State distribution and inventory utilization across all {{ total_beds|default(0) }} registered beds.
+        </p>
+      </div>
+      <a href="/admin/beds" class="btn btn-secondary btn-sm" style="font-size: 0.8125rem; padding: 0.35rem 0.75rem;">
+        Beds Directory &rarr;
+      </a>
+    </div>
+
+    <!-- Visual Distribution Meter Bar -->
+    <div style="margin: 1.5rem 0 1.25rem;">
+      {% set total_b = total_beds|default(0) %}
+      {% set occ_pct = (occupied_beds|default(0) / total_b * 100) if total_b > 0 else 0 %}
+      {% set avail_pct = (available_beds|default(0) / total_b * 100) if total_b > 0 else 0 %}
+      {% set maint_pct = (maintenance_beds|default(0) / total_b * 100) if total_b > 0 else 0 %}
+
+      <div style="height: 14px; background: var(--slate-100); border-radius: 9999px; display: flex; overflow: hidden; border: 1px solid var(--border-color);">
+        <div style="width: {{ occ_pct }}%; background: #3b82f6; transition: width 0.6s ease;" title="Occupied: {{ occupied_beds }} ({{ occ_pct|round(1) }}%)"></div>
+        <div style="width: {{ avail_pct }}%; background: #10b981; transition: width 0.6s ease;" title="Available: {{ available_beds }} ({{ avail_pct|round(1) }}%)"></div>
+        <div style="width: {{ maint_pct }}%; background: #f59e0b; transition: width 0.6s ease;" title="Under Maintenance: {{ maintenance_beds }} ({{ maint_pct|round(1) }}%)"></div>
+      </div>
+    </div>
+
+    <!-- 3 State Detail Cards -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+      <div style="padding: 1rem 1.25rem; border: 1px solid var(--status-available-border); background: var(--status-available-bg); border-radius: var(--radius-md);">
+        <div style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--status-available-text); letter-spacing: 0.06em;">AVAILABLE</div>
+        <div style="font-size: 1.75rem; font-weight: 800; color: var(--status-available-text); margin: 0.25rem 0 0.2rem;">{{ available_beds|default(0) }}</div>
+        <div style="font-size: 0.8125rem; color: var(--slate-600);">Sanitized &amp; ready for allocation</div>
+      </div>
+
+      <div style="padding: 1rem 1.25rem; border: 1px solid var(--status-occupied-border); background: var(--status-occupied-bg); border-radius: var(--radius-md);">
+        <div style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--status-occupied-text); letter-spacing: 0.06em;">OCCUPIED</div>
+        <div style="font-size: 1.75rem; font-weight: 800; color: var(--status-occupied-text); margin: 0.25rem 0 0.2rem;">{{ occupied_beds|default(0) }}</div>
+        <div style="font-size: 0.8125rem; color: var(--slate-600);">Active verified resident stays</div>
+      </div>
+
+      <div style="padding: 1rem 1.25rem; border: 1px solid var(--status-maintenance-border); background: var(--status-maintenance-bg); border-radius: var(--radius-md);">
+        <div style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--status-maintenance-text); letter-spacing: 0.06em;">UNDER MAINTENANCE</div>
+        <div style="font-size: 1.75rem; font-weight: 800; color: var(--status-maintenance-text); margin: 0.25rem 0 0.2rem;">{{ maintenance_beds|default(0) }}</div>
+        <div style="font-size: 0.8125rem; color: var(--slate-600);">Requires warden clearance</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Quick Operations Hub -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h3 style="margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span>⚙️</span> Quick Operations Hub
+        </h3>
+        <p style="margin: 0.25rem 0 0; font-size: 0.8125rem; color: var(--slate-500);">Direct access to core administrative modules, financial tools, and intelligence reports.</p>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem;">
+      <!-- Column 1: Property Inventory -->
+      <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.15rem; background: var(--slate-50);">
+        <h4 style="font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--slate-700); margin: 0 0 0.85rem;">
+          Property &amp; Inventory
+        </h4>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <a href="/admin/properties" class="btn btn-secondary" style="justify-content: flex-start; background: #fff; padding: 0.55rem 0.85rem;">🏢 Manage Properties</a>
+          <a href="/admin/rooms" class="btn btn-secondary" style="justify-content: flex-start; background: #fff; padding: 0.55rem 0.85rem;">🚪 Rooms Directory</a>
+          <a href="/admin/beds" class="btn btn-secondary" style="justify-content: flex-start; background: #fff; padding: 0.55rem 0.85rem;">🛏️ Beds &amp; Lifecycle</a>
+          <a href="/admin/tenants" class="btn btn-secondary" style="justify-content: flex-start; background: #fff; padding: 0.55rem 0.85rem;">👥 Residents Directory</a>
+        </div>
+      </div>
+
+      <!-- Column 2: Billing & Cash Flow -->
+      <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.15rem; background: var(--slate-50);">
+        <h4 style="font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--slate-700); margin: 0 0 0.85rem;">
+          Billing &amp; Finance
+        </h4>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <a href="/admin/invoices" class="btn btn-secondary" style="justify-content: flex-start; background: #fff; padding: 0.55rem 0.85rem;">🧾 Invoices &amp; Rent Runs</a>
+          <a href="/admin/payments/record" class="btn btn-secondary" style="justify-content: flex-start; background: #fff; padding: 0.55rem 0.85rem;">💰 Record Cash/UPI Payment</a>
+          <a href="/admin/payments" class="btn btn-secondary" style="justify-content: flex-start; background: #fff; padding: 0.55rem 0.85rem;">💳 Payment Transactions</a>
+          <a href="/admin/reports/defaulters" class="btn btn-secondary" style="justify-content: flex-start; background: #fff; padding: 0.55rem 0.85rem;">⚠️ Defaulters Tracking</a>
+        </div>
+      </div>
+
+      <!-- Column 3: Communication & Governance -->
+      <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.15rem; background: var(--slate-50);">
+        <h4 style="font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--slate-700); margin: 0 0 0.85rem;">
+          Reports &amp; Governance
+        </h4>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <a href="/admin/reports/occupancy" class="btn btn-secondary" style="justify-content: flex-start; background: #fff; padding: 0.55rem 0.85rem;">📈 Live Occupancy Analytics</a>
+          <a href="/admin/reports/revenue" class="btn btn-secondary" style="justify-content: flex-start; background: #fff; padding: 0.55rem 0.85rem;">📊 Collections Report</a>
+          <a href="/admin/complaints" class="btn btn-secondary" style="justify-content: flex-start; background: #fff; padding: 0.55rem 0.85rem;">🔧 Resident Complaints</a>
+          <a href="/admin/audit-logs" class="btn btn-secondary" style="justify-content: flex-start; background: #fff; padding: 0.55rem 0.85rem;">🛡️ Administrative Audit Trail</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

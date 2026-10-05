@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Rent & Utility Invoices - PG Management System{% endblock %}
+{% block breadcrumbs %}Administration / Invoices{% endblock %}
+
+{% block content %}
+<div>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Rent &amp; Utility Invoices</h1>
+      <p class="page-subtitle">Generate monthly billing runs, track utility consumption charges, and monitor resident collection balances.</p>
+    </div>
+    <div class="page-actions">
+      <a href="{{ url_for('admin.payment_record') }}" class="btn btn-secondary">+ Record Payment</a>
+      <button type="button" class="btn btn-primary" onclick="document.getElementById('gen-modal').style.display='block'">
+        Generate Monthly Invoices
+      </button>
+    </div>
+  </div>
+
+  <!-- Generate Invoices Modal -->
+  <div id="gen-modal" class="modal-backdrop" style="display: none;">
+    <div class="card modal-dialog" style="max-width: 520px; margin: 4rem auto; background: #fff;">
+      <div class="card-header">
+        <h3 style="margin: 0; font-size: 1.1rem;">Generate Monthly Invoices</h3>
+      </div>
+      <form method="POST" action="{{ url_for('admin.invoices_generate') }}" style="padding: 1.25rem;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+          <label class="form-label">Billing Month (YYYY-MM) *</label>
+          <input type="month" name="billing_month" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Due Date *</label>
+          <input type="date" name="due_date" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Property (Optional)</label>
+          <select name="property_id" class="form-control">
+            <option value="">-- All Properties --</option>
+            {% for p in properties %}
+              <option value="{{ p.id }}">{{ p.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('gen-modal').style.display='none'">Cancel</button>
+          <button type="submit" class="btn btn-primary">Generate Now</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="card" style="padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+    <form method="GET" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+      <div class="form-group" style="margin-bottom: 0; min-width: 180px;">
+        <label class="form-label">Property Branch</label>
+        <select name="property_id" class="form-control" onchange="this.form.submit()">
+          <option value="">-- All Properties --</option>
+          {% for p in properties %}
+            <option value="{{ p.id }}" {% if selected_prop|string == p.id|string %}selected{% endif %}>{{ p.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom: 0; min-width: 150px;">
+        <label class="form-label">Payment Status</label>
+        <select name="status" class="form-control" onchange="this.form.submit()">
+          <option value="">-- All Statuses --</option>
+          <option value="UNPAID" {% if selected_status == 'UNPAID' %}selected{% endif %}>UNPAID</option>
+          <option value="PARTIAL" {% if selected_status == 'PARTIAL' %}selected{% endif %}>PARTIAL</option>
+          <option value="PAID" {% if selected_status == 'PAID' %}selected{% endif %}>PAID</option>
+          <option value="OVERDUE" {% if selected_status == 'OVERDUE' %}selected{% endif %}>OVERDUE</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom: 0; min-width: 150px;">
+        <label class="form-label">Month</label>
+        <input type="month" name="billing_month" class="form-control" value="{{ selected_month }}" onchange="this.form.submit()">
+      </div>
+      <a href="{{ url_for('admin.invoices_index') }}" class="btn btn-secondary">Reset Filters</a>
+    </form>
+  </div>
+
+  <!-- Invoices Data Table -->
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table-sticky">
+        <thead>
+          <tr>
+            <th>Invoice No</th>
+            <th>Resident Name</th>
+            <th>Room &amp; Bed</th>
+            <th>Month</th>
+            <th>Due Date</th>
+            <th class="text-right">Rent</th>
+            <th class="text-right">Utility</th>
+            <th class="text-right">Total Bill</th>
+            <th class="text-right">Paid</th>
+            <th class="text-right">Balance Due</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for inv in invoices %}
+          <tr>
+            <td>
+              <a href="{{ url_for('admin.invoice_view', id=inv.id) }}" style="font-weight: 700; color: var(--primary-600); text-decoration: none;">
+                {{ inv.invoice_number }}
+              </a>
+            </td>
+            <td><strong>{{ inv.first_name }} {{ inv.last_name }}</strong></td>
+            <td>Rm {{ inv.room_number }} <span style="font-size: 0.75rem; color: var(--slate-500);">({{ inv.bed_number }})</span></td>
+            <td><span class="badge" style="background: var(--slate-100); color: var(--slate-700);">{{ inv.billing_month }}</span></td>
+            <td>{{ inv.due_date|format_date }}</td>
+            <td class="text-right tabular-nums">{{ inv.rent_amount|currency }}</td>
+            <td class="text-right tabular-nums">{{ inv.utility_amount|currency }}</td>
+            <td class="text-right tabular-nums"><strong>{{ inv.total_amount|currency }}</strong></td>
+            <td class="text-right tabular-nums" style="color: #166534;">{{ inv.paid_amount|currency }}</td>
+            <td class="text-right tabular-nums">
+              <strong style="color: {% if inv.balance_due > 0 %}#991b1b{% else %}#166534{% endif %};">
+                {{ inv.balance_due|currency }}
+              </strong>
+            </td>
+            <td>
+              <span class="badge {% if inv.status == 'PAID' %}badge-paid{% elif inv.status == 'PARTIAL' %}badge-partial{% else %}badge-overdue{% endif %}">
+                {{ inv.status }}
+              </span>
+            </td>
+            <td>
+              <a href="{{ url_for('admin.invoice_view', id=inv.id) }}" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                View
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="12">
+              <div class="empty-state">
+                <div class="empty-state-icon">🧾</div>
+                <h3 class="empty-state-title">No Invoices Found</h3>
+                <p class="empty-state-desc">There are no billing records matching the selected property, month, or payment status.</p>
+                <a href="{{ url_for('admin.invoices_index') }}" class="btn btn-secondary">Reset Filters</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

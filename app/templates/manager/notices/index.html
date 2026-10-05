@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Property Notice Board - Manager Portal{% endblock %}
+{% block breadcrumbs %}Operations / Notices{% endblock %}
+{% block content %}
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+  <div>
+    <div class="card">
+      <div class="card-header">
+        <h2>Property Announcements</h2>
+      </div>
+
+      {% for n in notices %}
+      <div style="padding: 1rem 0; border-bottom: 1px solid var(--border-color);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+          <h3 style="font-size: 1.05rem;">{{ n.title }}</h3>
+          <span style="font-size: 0.75rem; color: var(--slate-500);">{{ n.published_at|format_date }}</span>
+        </div>
+        <p style="color: var(--slate-700); font-size: 0.875rem; white-space: pre-wrap; margin-bottom: 0.5rem;">{{ n.content }}</p>
+        <span class="badge badge-occupied">{{ n.target_audience }}</span>
+        <span style="font-size: 0.75rem; color: var(--slate-500); margin-left: 0.5rem;">By {{ n.author_first_name }} {{ n.author_last_name }}</span>
+      </div>
+      {% else %}
+      <p style="color: var(--slate-500); text-align: center; padding: 2rem;">No notices posted yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="card-header">
+        <h3>Post Notice to Residents</h3>
+      </div>
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-group">
+          <label class="form-label" for="title">Title *</label>
+          <input type="text" id="title" name="title" class="form-control" required placeholder="Notice subject">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="content">Message *</label>
+          <textarea id="content" name="content" class="form-control" rows="5" required placeholder="Write message to residents..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Post to Property</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

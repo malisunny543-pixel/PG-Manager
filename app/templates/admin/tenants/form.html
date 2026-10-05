@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Register Tenant - PG Management System{% endblock %}
+{% block breadcrumbs %}Administration / <a href="{{ url_for('admin.tenants_index') }}">Tenants</a> / Register{% endblock %}
+{% block content %}
+<div style="max-width: 750px;">
+  <div class="card">
+    <div class="card-header">
+      <h2>Register New Tenant Account</h2>
+    </div>
+
+    <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="first_name">First Name *</label>
+          <input type="text" id="first_name" name="first_name" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="last_name">Last Name *</label>
+          <input type="text" id="last_name" name="last_name" class="form-control" required>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address *</label>
+          <input type="email" id="email" name="email" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="phone">Phone Number *</label>
+          <input type="tel" id="phone" name="phone" class="form-control" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Temporary Password *</label>
+        <input type="password" id="password" name="password" class="form-control" required minlength="6">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="emergency_name">Emergency Contact Name *</label>
+          <input type="text" id="emergency_name" name="emergency_name" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="emergency_phone">Emergency Contact Phone *</label>
+          <input type="tel" id="emergency_phone" name="emergency_phone" class="form-control" required>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="id_proof_type">ID Proof Document *</label>
+          <select id="id_proof_type" name="id_proof_type" class="form-control" required>
+            <option value="Aadhaar">Aadhaar Card</option>
+            <option value="Passport">Passport</option>
+            <option value="Driving License">Driving License</option>
+            <option value="Voter ID">Voter ID</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_proof_number">ID Proof Number *</label>
+          <input type="text" id="id_proof_number" name="id_proof_number" class="form-control" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="permanent_address">Permanent Address *</label>
+        <textarea id="permanent_address" name="permanent_address" class="form-control" rows="2" required></textarea>
+      </div>
+
+      <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <button type="submit" class="btn btn-primary">Create Tenant Account</button>
+        <a href="{{ url_for('admin.tenants_index') }}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

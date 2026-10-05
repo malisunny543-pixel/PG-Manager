@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}My Payment Receipts - Resident Portal{% endblock %}
+{% block breadcrumbs %}Resident Portal / Payments{% endblock %}
+{% block content %}
+<div>
+  <div style="margin-bottom: 1.5rem;">
+    <h1>My Payment History & Receipts</h1>
+    <p style="color: var(--slate-500); font-size: 0.875rem;">Historical transactions and verification references for your rent and deposit payments.</p>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Date & Time</th>
+            <th>Invoice No</th>
+            <th>Billing Month</th>
+            <th>Amount Paid</th>
+            <th>Payment Method</th>
+            <th>Transaction Reference</th>
+            <th>Recorded By Staff</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in payments %}
+          <tr>
+            <td>{{ p.payment_date|format_date('%d %b %Y, %I:%M %p') }}</td>
+            <td><strong>{{ p.invoice_number }}</strong></td>
+            <td>{{ p.billing_month }}</td>
+            <td><strong style="color: var(--status-paid-text); font-size: 1rem;">{{ p.amount|currency }}</strong></td>
+            <td><span class="badge badge-occupied">{{ p.payment_method }}</span></td>
+            <td><span style="font-family: monospace;">{{ p.transaction_reference }}</span></td>
+            <td>{{ p.recorded_by_first }} {{ p.recorded_by_last }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" style="text-align: center; color: var(--slate-500); padding: 2rem;">No payment records found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

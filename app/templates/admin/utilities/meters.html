@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Utility Meters - PG Management System{% endblock %}
+{% block breadcrumbs %}Administration / Utilities / Meters{% endblock %}
+{% block content %}
+<div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1>Utility Meters</h1>
+      <p style="color: var(--slate-500); font-size: 0.875rem;">Configure physical sub-meters and unit rates per room or property.</p>
+    </div>
+    <a href="{{ url_for('admin.utility_readings_index') }}" class="btn btn-secondary">View Meter Readings</a>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+    <!-- Meters Table -->
+    <div class="card">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Identifier Tag</th>
+              <th>Property</th>
+              <th>Room Assignment</th>
+              <th>Type</th>
+              <th>Configured Unit Rate</th>
+              <th>Last Reading</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in meters %}
+            <tr>
+              <td><strong style="color: var(--primary-600); font-family: monospace;">{{ m.meter_identifier }}</strong></td>
+              <td>{{ m.property_name }}</td>
+              <td>{{ 'Room ' + m.room_number if m.room_number else 'Whole Property' }}</td>
+              <td><span class="badge badge-occupied">{{ m.meter_type }}</span></td>
+              <td><strong>₹{{ m.rate_per_unit }}/unit</strong></td>
+              <td>{{ m.last_reading or '0.00' }}</td>
+              <td>
+                {% if m.is_active %}
+                  <span class="badge badge-available">Active</span>
+                {% else %}
+                  <span class="badge badge-maintenance">Inactive</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" style="text-align: center; color: var(--slate-500); padding: 1.5rem;">No meters configured yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Register Meter Card -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Register New Meter</h3>
+      </div>
+      <form method="POST" action="{{ url_for('admin.utility_meter_create') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-group">
+          <label class="form-label" for="property_id">Property Branch *</label>
+          <select id="property_id" name="property_id" class="form-control" required>
+            <option value="">-- Select Property --</option>
+            {% for p in properties %}
+              <option value="{{ p.id }}">{{ p.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="room_id">Assigned Room (Optional)</label>
+          <select id="room_id" name="room_id" class="form-control">
+            <option value="">-- Entire Property Meter --</option>
+            {% for r in rooms %}
+              <option value="{{ r.id }}">Room {{ r.room_number }} ({{ r.property_name }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="meter_type">Meter Utility Type *</label>
+          <select id="meter_type" name="meter_type" class="form-control" required>
+            <option value="ELECTRICITY">Electricity (kWh)</option>
+            <option value="WATER">Water</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="meter_identifier">Meter Serial / Tag *</label>
+          <input type="text" id="meter_identifier" name="meter_identifier" class="form-control" required placeholder="e.g. MTR-KOR-R101">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="rate_per_unit">Rate per Unit (₹) *</label>
+          <input type="number" step="0.01" id="rate_per_unit" name="rate_per_unit" class="form-control" required value="10.00">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Register Meter</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

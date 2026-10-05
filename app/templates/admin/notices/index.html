@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Notice Board - PG Management System{% endblock %}
+{% block breadcrumbs %}Administration / Notice Board{% endblock %}
+{% block content %}
+<div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1>Notice Board Announcements</h1>
+      <p style="color: var(--slate-500); font-size: 0.875rem;">Publish announcements to all branches or specific properties.</p>
+    </div>
+    <a href="{{ url_for('admin.notice_create') }}" class="btn btn-primary">+ Post New Notice</a>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Published</th>
+            <th>Title</th>
+            <th>Scope / Property</th>
+            <th>Audience</th>
+            <th>Author</th>
+            <th>Expires</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for n in notices %}
+          <tr>
+            <td>{{ n.published_at|format_date }}</td>
+            <td><strong style="color: var(--slate-900);">{{ n.title }}</strong></td>
+            <td>{{ n.property_name or 'Global (All Properties)' }}</td>
+            <td><span class="badge badge-occupied">{{ n.target_audience }}</span></td>
+            <td>{{ n.author_first_name }} {{ n.author_last_name }}</td>
+            <td>{{ n.expires_at|format_date if n.expires_at else 'Never' }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('admin.notice_delete', id=n.id) }}" style="display: inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-danger" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" data-confirm="Delete this announcement?">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--slate-500); padding: 2rem;">
+              No announcements currently active.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

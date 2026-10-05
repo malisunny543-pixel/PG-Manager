@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Complaints Queue - PG Management System{% endblock %}
+{% block breadcrumbs %}Administration / Complaints{% endblock %}
+{% block content %}
+<div>
+  <div style="margin-bottom: 1.5rem;">
+    <h1>Resident Complaints & Grievances</h1>
+    <p style="color: var(--slate-500); font-size: 0.875rem;">Track, assign staff, and resolve tenant maintenance tickets.</p>
+  </div>
+
+  <div class="card" style="padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+    <form method="GET" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+      <div class="form-group" style="margin-bottom: 0; min-width: 180px;">
+        <label class="form-label">Property Branch</label>
+        <select name="property_id" class="form-control" onchange="this.form.submit()">
+          <option value="">-- All Properties --</option>
+          {% for p in properties %}
+            <option value="{{ p.id }}" {% if selected_prop|string == p.id|string %}selected{% endif %}>{{ p.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom: 0; min-width: 160px;">
+        <label class="form-label">Status</label>
+        <select name="status" class="form-control" onchange="this.form.submit()">
+          <option value="">-- All Statuses --</option>
+          <option value="OPEN" {% if selected_status == 'OPEN' %}selected{% endif %}>OPEN</option>
+          <option value="ASSIGNED" {% if selected_status == 'ASSIGNED' %}selected{% endif %}>ASSIGNED</option>
+          <option value="IN_PROGRESS" {% if selected_status == 'IN_PROGRESS' %}selected{% endif %}>IN_PROGRESS</option>
+          <option value="RESOLVED" {% if selected_status == 'RESOLVED' %}selected{% endif %}>RESOLVED</option>
+          <option value="CLOSED" {% if selected_status == 'CLOSED' %}selected{% endif %}>CLOSED</option>
+        </select>
+      </div>
+      <a href="{{ url_for('admin.complaints_index') }}" class="btn btn-secondary">Reset</a>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Ticket #</th>
+            <th>Resident Name</th>
+            <th>Location</th>
+            <th>Category</th>
+            <th>Title</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Assigned Staff</th>
+            <th>Submitted</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in complaints %}
+          <tr>
+            <td><strong>#{{ c.id }}</strong></td>
+            <td><strong>{{ c.tenant_first_name }} {{ c.tenant_last_name }}</strong></td>
+            <td>{{ c.property_code }}{% if c.room_number %} (Rm {{ c.room_number }}){% endif %}</td>
+            <td><span class="badge badge-occupied">{{ c.category }}</span></td>
+            <td>{{ c.title }}</td>
+            <td>
+              <span class="badge {% if c.priority in ('HIGH', 'URGENT') %}badge-overdue{% else %}badge-partial{% endif %}">
+                {{ c.priority }}
+              </span>
+            </td>
+            <td>
+              <span class="badge {% if c.status == 'RESOLVED' %}badge-paid{% elif c.status == 'OPEN' %}badge-overdue{% else %}badge-partial{% endif %}">
+                {{ c.status }}
+              </span>
+            </td>
+            <td>{{ (c.assigned_first_name + ' ' + c.assigned_last_name) if c.assigned_first_name else 'Unassigned' }}</td>
+            <td>{{ c.created_at|format_date }}</td>
+            <td>
+              <a href="{{ url_for('admin.complaint_view', id=c.id) }}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Manage</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="10" style="text-align: center; color: var(--slate-500); padding: 2rem;">
+              No complaints found matching the criteria.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Utility Meter Readings - PG Management System{% endblock %}
+{% block breadcrumbs %}Administration / Utilities / Readings{% endblock %}
+{% block content %}
+<div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1>Utility Meter Readings & Billing</h1>
+      <p style="color: var(--slate-500); font-size: 0.875rem;">Record monthly meter readings and calculate computed charges.</p>
+    </div>
+    <a href="{{ url_for('admin.utility_meters_index') }}" class="btn btn-secondary">Manage Meters</a>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+    <!-- Readings Table -->
+    <div class="card">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Meter Identifier</th>
+              <th>Property / Room</th>
+              <th>Prev Reading</th>
+              <th>Curr Reading</th>
+              <th>Units Consumed</th>
+              <th>Applied Rate</th>
+              <th>Total Charge</th>
+              <th>Billing Period</th>
+              <th>Verified By</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in readings %}
+            <tr>
+              <td><strong style="color: var(--primary-600); font-family: monospace;">{{ r.meter_identifier }}</strong></td>
+              <td>{{ r.property_name }}{% if r.room_number %} (Rm {{ r.room_number }}){% endif %}</td>
+              <td>{{ r.previous_reading }}</td>
+              <td><strong>{{ r.current_reading }}</strong></td>
+              <td><span class="badge badge-occupied">{{ r.units_consumed }} units</span></td>
+              <td>₹{{ r.rate_per_unit }}</td>
+              <td><strong style="color: var(--slate-900);">{{ r.total_charge|currency }}</strong></td>
+              <td><span style="font-size: 0.75rem;">{{ r.billing_period_start|format_date }} - {{ r.billing_period_end|format_date }}</span></td>
+              <td>{{ r.verifier_first }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="9" style="text-align: center; color: var(--slate-500); padding: 1.5rem;">No meter readings logged yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Record Reading Form -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Log New Reading</h3>
+      </div>
+      <form method="POST" action="{{ url_for('admin.utility_reading_record') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-group">
+          <label class="form-label" for="meter_id">Select Meter *</label>
+          <select id="meter_id" name="meter_id" class="form-control" required onchange="showLastReading(this)">
+            <option value="">-- Choose Meter --</option>
+            {% for m in meters %}
+              <option value="{{ m.id }}" data-last="{{ m.last_reading or 0.00 }}">
+                {{ m.meter_identifier }} ({{ m.property_name }}{% if m.room_number %}, Rm {{ m.room_number }}{% endif %})
+              </option>
+            {% endfor %}
+          </select>
+          <span id="prev-hint" style="font-size: 0.75rem; color: var(--slate-500); display: block; margin-top: 0.25rem;"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="current_reading">Current Meter Reading *</label>
+          <input type="number" step="0.01" id="current_reading" name="current_reading" class="form-control" required placeholder="0.00">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="billing_period_start">Period Start Date *</label>
+          <input type="date" id="billing_period_start" name="billing_period_start" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="billing_period_end">Period End Date *</label>
+          <input type="date" id="billing_period_end" name="billing_period_end" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Calculate & Save Reading</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function showLastReading(sel) {
+  const opt = sel.options[sel.selectedIndex];
+  const hint = document.getElementById('prev-hint');
+  if (opt && opt.dataset.last) {
+    hint.textContent = 'Previous recorded reading: ' + opt.dataset.last;
+  } else {
+    hint.textContent = '';
+  }
+}
+</script>
+{% endblock %}

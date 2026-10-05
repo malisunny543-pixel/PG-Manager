@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}My Room & Bed - Resident Portal{% endblock %}
+{% block breadcrumbs %}Resident Portal / My Accommodation{% endblock %}
+{% block content %}
+<div style="max-width: 800px;">
+  {% if allocation %}
+  <div class="card">
+    <div class="card-header">
+      <h2>Current Accommodation Details</h2>
+      <span class="badge badge-occupied">ACTIVE RESIDENT</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+      <div>
+        <span class="stat-label">Property Branch</span>
+        <h3 style="font-size: 1.125rem;">{{ allocation.property_name }}</h3>
+        <p style="color: var(--slate-500); font-size: 0.8125rem;">{{ allocation.property_address }}</p>
+        <p style="color: var(--slate-500); font-size: 0.8125rem;">Desk Phone: {{ allocation.property_phone }}</p>
+      </div>
+      <div>
+        <span class="stat-label">Assigned Room & Bed</span>
+        <h3 style="font-size: 1.125rem; color: var(--primary-600);">Room {{ allocation.room_number }} &bull; Bed {{ allocation.bed_number }}</h3>
+        <span class="badge badge-occupied">{{ allocation.room_type }}</span>
+      </div>
+      <div>
+        <span class="stat-label">Monthly Rent</span>
+        <h3 style="font-size: 1.125rem;">{{ allocation.monthly_rent|currency }}</h3>
+        <span style="font-size: 0.75rem; color: var(--slate-500);">Due on 1st of each month</span>
+      </div>
+      <div>
+        <span class="stat-label">Check-in Date</span>
+        <h3 style="font-size: 1.125rem;">{{ allocation.check_in_date|format_date }}</h3>
+      </div>
+    </div>
+
+    <!-- Roommates list -->
+    <div class="card-header" style="padding-top: 1rem;">
+      <h3>My Room-mates</h3>
+    </div>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Room-mate Name</th>
+            <th>Bed Designation</th>
+            <th>Resident Since</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rm in room_mates %}
+          <tr>
+            <td><strong>{{ rm.first_name }} {{ rm.last_name }}</strong></td>
+            <td>Bed {{ rm.bed_number }}</td>
+            <td>{{ rm.check_in_date|format_date }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3" style="text-align: center; color: var(--slate-500); padding: 1rem;">No other residents in this room currently.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+      <a href="{{ url_for('tenant.complaint_create') }}" class="btn btn-secondary">Report Issue in Room</a>
+      <a href="{{ url_for('tenant.checkout_request') }}" class="btn btn-secondary">Request Planned Checkout</a>
+    </div>
+  </div>
+  {% else %}
+  <div class="card" style="text-align: center; padding: 3rem;">
+    <h2>No Active Accommodation Allocation</h2>
+    <p style="color: var(--slate-500); margin: 1rem 0;">You are currently not checked into any PG room or bed. Please contact the PG manager to finalize your check-in.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

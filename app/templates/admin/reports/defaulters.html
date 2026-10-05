@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Defaulters & Overdue Rent - PG Management System{% endblock %}
+{% block breadcrumbs %}Administration / Reports / Defaulters{% endblock %}
+{% block content %}
+<div>
+  <div style="margin-bottom: 1.5rem;">
+    <h1>Defaulters & Overdue Rent Report</h1>
+    <p style="color: var(--slate-500); font-size: 0.875rem;">Residents with outstanding rent or utility balances past their due dates.</p>
+  </div>
+
+  <div class="card" style="padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+    <form method="GET" style="display: flex; gap: 1rem; align-items: flex-end;">
+      <div class="form-group" style="margin-bottom: 0; min-width: 250px;">
+        <label class="form-label">Filter by Property</label>
+        <select name="property_id" class="form-control" onchange="this.form.submit()">
+          <option value="">-- All Properties --</option>
+          {% for p in properties %}
+            <option value="{{ p.id }}" {% if selected_prop|string == p.id|string %}selected{% endif %}>{{ p.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <a href="{{ url_for('admin.report_defaulters') }}" class="btn btn-secondary">Reset</a>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Resident Name</th>
+            <th>Contact Phone</th>
+            <th>Property / Room</th>
+            <th>Invoice No</th>
+            <th>Month</th>
+            <th>Due Date</th>
+            <th>Total Bill</th>
+            <th>Paid to Date</th>
+            <th>Outstanding Due</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in defaulters %}
+          <tr>
+            <td><strong>{{ d.first_name }} {{ d.last_name }}</strong></td>
+            <td>{{ d.phone }}</td>
+            <td>{{ d.property_name }} &bull; Rm {{ d.room_number }} ({{ d.bed_number }})</td>
+            <td><a href="{{ url_for('admin.invoice_view', id=d.invoice_id) }}">{{ d.invoice_number }}</a></td>
+            <td>{{ d.billing_month }}</td>
+            <td><strong style="color: #991b1b;">{{ d.due_date|format_date }}</strong></td>
+            <td>{{ d.total_amount|currency }}</td>
+            <td>{{ d.paid_amount|currency }}</td>
+            <td><strong style="color: #991b1b; font-size: 1rem;">{{ d.balance_due|currency }}</strong></td>
+            <td><span class="badge badge-overdue">{{ d.status }}</span></td>
+            <td>
+              <a href="{{ url_for('admin.payment_record', invoice_id=d.invoice_id) }}" class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                Collect Payment
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="11" style="text-align: center; color: var(--status-paid-text); padding: 2rem;">No defaulters or outstanding balances found. All dues are settled!</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

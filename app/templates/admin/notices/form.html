@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Post Notice - PG Management System{% endblock %}
+{% block breadcrumbs %}Administration / <a href="{{ url_for('admin.notices_index') }}">Notice Board</a> / Post{% endblock %}
+{% block content %}
+<div style="max-width: 650px;">
+  <div class="card">
+    <div class="card-header">
+      <h2>Publish Announcement</h2>
+    </div>
+
+    <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="form-group">
+        <label class="form-label" for="title">Notice Title *</label>
+        <input type="text" id="title" name="title" class="form-control" required placeholder="e.g. Festival Holidays & Food Service Timings">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="property_id">Target Property</label>
+          <select id="property_id" name="property_id" class="form-control">
+            <option value="">-- Global (All PG Properties) --</option>
+            {% for p in properties %}
+              <option value="{{ p.id }}">{{ p.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="target_audience">Target Audience *</label>
+          <select id="target_audience" name="target_audience" class="form-control" required>
+            <option value="ALL">Everyone (Tenants & Managers)</option>
+            <option value="TENANTS_ONLY">Tenants Only</option>
+            <option value="MANAGERS_ONLY">Managers Only</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="content">Announcement Message *</label>
+        <textarea id="content" name="content" class="form-control" rows="5" required placeholder="Write the notice details here..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="expires_at">Expiration Date (Optional)</label>
+        <input type="datetime-local" id="expires_at" name="expires_at" class="form-control">
+      </div>
+
+      <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <button type="submit" class="btn btn-primary">Publish Notice</button>
+        <a href="{{ url_for('admin.notices_index') }}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

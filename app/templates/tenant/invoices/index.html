@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}My Invoices - Resident Portal{% endblock %}
+{% block breadcrumbs %}Resident Portal / Invoices{% endblock %}
+{% block content %}
+<div>
+  <div style="margin-bottom: 1.5rem;">
+    <h1>My Invoices & Rent Dues</h1>
+    <p style="color: var(--slate-500); font-size: 0.875rem;">Monthly accommodation bills, utility electricity charges, and balance status.</p>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Invoice No</th>
+            <th>Billing Month</th>
+            <th>Due Date</th>
+            <th>Rent</th>
+            <th>Utility Charges</th>
+            <th>Total Amount</th>
+            <th>Paid</th>
+            <th>Outstanding Balance</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for inv in invoices %}
+          <tr>
+            <td><strong style="color: var(--primary-600);">{{ inv.invoice_number }}</strong></td>
+            <td>{{ inv.billing_month }}</td>
+            <td>{{ inv.due_date|format_date }}</td>
+            <td>{{ inv.rent_amount|currency }}</td>
+            <td>{{ inv.utility_amount|currency }}</td>
+            <td><strong>{{ inv.total_amount|currency }}</strong></td>
+            <td>{{ inv.paid_amount|currency }}</td>
+            <td><strong style="color: {% if inv.balance_due > 0 %}#991b1b{% else %}#166534{% endif %};">{{ inv.balance_due|currency }}</strong></td>
+            <td>
+              <span class="badge {% if inv.status == 'PAID' %}badge-paid{% elif inv.status == 'PARTIAL' %}badge-partial{% else %}badge-overdue{% endif %}">
+                {{ inv.status }}
+              </span>
+            </td>
+            <td>
+              <a href="{{ url_for('tenant.invoice_view', id=inv.id) }}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">View Breakdown</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="10" style="text-align: center; color: var(--slate-500); padding: 2rem;">No invoices issued yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

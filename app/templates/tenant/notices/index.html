@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Notice Board - Resident Portal{% endblock %}
+{% block breadcrumbs %}Resident Portal / Notices{% endblock %}
+{% block content %}
+<div style="max-width: 800px;">
+  <div class="card">
+    <div class="card-header">
+      <h2>Resident Notice Board</h2>
+    </div>
+
+    {% for n in notices %}
+    <div style="padding: 1.25rem 0; border-bottom: 1px solid var(--border-color);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+        <h3 style="font-size: 1.15rem; color: var(--slate-900);">{{ n.title }}</h3>
+        <span style="font-size: 0.75rem; color: var(--slate-500);">{{ n.published_at|format_date }}</span>
+      </div>
+      <p style="color: var(--slate-700); font-size: 0.9375rem; line-height: 1.6; white-space: pre-wrap; margin-bottom: 0.5rem;">
+        {{ n.content }}
+      </p>
+      <div style="font-size: 0.75rem; color: var(--slate-500);">
+        Scope: {{ n.property_name or 'Global Announcement' }} &bull; Published by {{ n.author_first_name }} {{ n.author_last_name }}
+      </div>
+    </div>
+    {% else %}
+    <p style="color: var(--slate-500); text-align: center; padding: 2rem;">No notices posted at this time.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

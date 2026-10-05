@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Request Planned Checkout - Resident Portal{% endblock %}
+{% block breadcrumbs %}Resident Portal / Planned Checkout{% endblock %}
+{% block content %}
+<div style="max-width: 600px;">
+  <div class="card">
+    <div class="card-header">
+      <h2>Notice of Planned Checkout</h2>
+    </div>
+
+    <p style="color: var(--slate-600); font-size: 0.875rem; margin-bottom: 1.5rem;">
+      Please submit your expected departure date to initiate checkout scheduling and room inspection with your property warden.
+    </p>
+
+    <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="form-group">
+        <label class="form-label" for="expected_checkout_date">Expected Departure Date *</label>
+        <input type="date" id="expected_checkout_date" name="expected_checkout_date" class="form-control" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reason">Reason for Checkout / Forwarding Address</label>
+        <textarea id="reason" name="reason" class="form-control" rows="4" placeholder="Course completion, job relocation, or any forwarding comments..."></textarea>
+      </div>
+
+      <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <button type="submit" class="btn btn-primary">Submit Checkout Notice</button>
+        <a href="{{ url_for('tenant.dashboard') }}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

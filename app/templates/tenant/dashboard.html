@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Tenant Dashboard - PG Management System{% endblock %}
+{% block breadcrumbs %}Resident Portal / Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Resident Overview</h1>
+      <p class="page-subtitle">Welcome back, {{ current_user.first_name }}! Manage your tenancy, invoices, and service requests.</p>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">ASSIGNED ROOM &amp; BED</span>
+        <span class="stat-card-icon">🛏️</span>
+      </div>
+      <h3 class="stat-value" style="font-size: 1.25rem;">Room {{ room_number|default('Unassigned') }} (Bed {{ bed_number|default('-') }})</h3>
+      <div class="stat-context">
+        <span class="badge badge-occupied">{{ property_name|default('PG Branch') }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">MONTHLY RENT</span>
+        <span class="stat-card-icon">💰</span>
+      </div>
+      <h3 class="stat-value">{{ monthly_rent|default(0)|currency }}</h3>
+      <div class="stat-context">Due on 1st of each month</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">OUTSTANDING BALANCE</span>
+        <span class="stat-card-icon">🧾</span>
+      </div>
+      <h3 class="stat-value">{{ balance_due|default(0)|currency }}</h3>
+      <div class="stat-context">
+        {% if balance_due and balance_due > 0 %}
+          <span class="badge badge-overdue">Payment Due</span>
+        {% else %}
+          <span class="badge badge-paid">All Dues Paid</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">SECURITY DEPOSIT HELD</span>
+        <span class="stat-card-icon">🛡️</span>
+      </div>
+      <h3 class="stat-value">{{ security_deposit|default(0)|currency }}</h3>
+      <div class="stat-context">Refundable at checkout</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3 style="margin: 0; font-size: 1.05rem;">Resident Quick Actions</h3>
+    </div>
+    <div style="display: flex; gap: 0.85rem; flex-wrap: wrap;">
+      <a href="/tenant/invoices" class="btn btn-primary">View Rent Invoices</a>
+      <a href="/tenant/payments" class="btn btn-secondary">Payment Receipts</a>
+      <a href="/tenant/complaints/create" class="btn btn-secondary">Submit Complaint</a>
+      <a href="/tenant/checkout-request" class="btn btn-secondary">Request Checkout</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

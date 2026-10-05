@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Tenants Directory - PG Management System{% endblock %}
+{% block breadcrumbs %}Administration / Tenants{% endblock %}
+{% block content %}
+<div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1>Tenants Directory</h1>
+      <p style="color: var(--slate-500); font-size: 0.875rem;">Manage resident profiles, emergency contact records, and allocation status.</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{{ url_for('admin.checkin') }}" class="btn btn-primary">+ New Check-in</a>
+      <a href="{{ url_for('admin.tenant_create') }}" class="btn btn-secondary">+ Register Tenant</a>
+    </div>
+  </div>
+
+  <div class="card" style="padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+    <form method="GET" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+      <div class="form-group" style="margin-bottom: 0; min-width: 250px;">
+        <label class="form-label">Search Tenant</label>
+        <input type="text" name="search" class="form-control" placeholder="Name, email, or phone..." value="{{ search }}">
+      </div>
+      <div class="form-group" style="margin-bottom: 0; min-width: 180px;">
+        <label class="form-label">Status</label>
+        <select name="status" class="form-control" onchange="this.form.submit()">
+          <option value="">-- All Statuses --</option>
+          <option value="ACTIVE" {% if selected_status == 'ACTIVE' %}selected{% endif %}>ACTIVE</option>
+          <option value="CHECKED_OUT" {% if selected_status == 'CHECKED_OUT' %}selected{% endif %}>CHECKED_OUT</option>
+          <option value="INACTIVE" {% if selected_status == 'INACTIVE' %}selected{% endif %}>INACTIVE (Unallocated)</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Search</button>
+      <a href="{{ url_for('admin.tenants_index') }}" class="btn btn-secondary">Reset</a>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Tenant Name</th>
+            <th>Contact Phone</th>
+            <th>Email</th>
+            <th>ID Proof</th>
+            <th>Current Bed & Room</th>
+            <th>Tenancy Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in tenants %}
+          <tr>
+            <td>
+              <a href="{{ url_for('admin.tenant_view', id=t.id) }}" style="font-weight: 600; color: var(--slate-900);">
+                {{ t.first_name }} {{ t.last_name }}
+              </a>
+            </td>
+            <td>{{ t.phone }}</td>
+            <td>{{ t.email }}</td>
+            <td><span style="font-size: 0.8125rem;">{{ t.id_proof_type }}: {{ t.id_proof_number }}</span></td>
+            <td>
+              {% if t.bed_number %}
+                <strong>Room {{ t.room_number }}</strong> (Bed {{ t.bed_number }})
+                <div style="font-size: 0.75rem; color: var(--slate-500);">{{ t.property_name }}</div>
+              {% else %}
+                <span style="color: var(--slate-400);">Not currently allocated</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if t.status == 'ACTIVE' %}
+                <span class="badge badge-occupied">ACTIVE</span>
+              {% elif t.status == 'CHECKED_OUT' %}
+                <span class="badge badge-maintenance">CHECKED_OUT</span>
+              {% else %}
+                <span class="badge badge-available">UNALLOCATED</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{{ url_for('admin.tenant_view', id=t.id) }}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">View Profile</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--slate-500); padding: 2rem;">
+              No tenant records found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

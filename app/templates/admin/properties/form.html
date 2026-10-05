@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}{% if property %}Edit Property - {{ property.name }}{% else %}Add New Property{% endif %}{% endblock %}
+{% block breadcrumbs %}Administration / <a href="{{ url_for('admin.properties_index') }}">Properties</a> / {% if property %}Edit{% else %}Create{% endif %}{% endblock %}
+{% block content %}
+<div style="max-width: 850px;">
+  <div class="card">
+    <div class="card-header">
+      <h2>{% if property %}Edit Property: {{ property.name }}{% else %}Add New Property / Branch{% endif %}</h2>
+    </div>
+
+    <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="name">Property Name *</label>
+          <input type="text" id="name" name="name" class="form-control" required value="{{ property.name if property else '' }}" placeholder="e.g. Sunrise PG (Koramangala)">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="code">Branch Code *</label>
+          <input type="text" id="code" name="code" class="form-control" required value="{{ property.code if property else '' }}" placeholder="e.g. PG-BLR-01">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="address">Full Address *</label>
+        <textarea id="address" name="address" class="form-control" rows="2" required placeholder="Street address...">{{ property.address if property else '' }}</textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="city">City *</label>
+          <input type="text" id="city" name="city" class="form-control" required value="{{ property.city if property else '' }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="state">State *</label>
+          <input type="text" id="state" name="state" class="form-control" required value="{{ property.state if property else '' }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="pincode">PIN Code *</label>
+          <input type="text" id="pincode" name="pincode" class="form-control" required value="{{ property.pincode if property else '' }}">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="contact_phone">Contact Telephone *</label>
+          <input type="tel" id="contact_phone" name="contact_phone" class="form-control" required value="{{ property.contact_phone if property else '' }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="default_deposit_amount">Default Deposit (₹)</label>
+          <input type="number" step="0.01" id="default_deposit_amount" name="default_deposit_amount" class="form-control" value="{{ property.default_deposit_amount if property else '8000.00' }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="default_utility_rate">Default Utility Rate (₹/unit)</label>
+          <input type="number" step="0.01" id="default_utility_rate" name="default_utility_rate" class="form-control" value="{{ property.default_utility_rate if property else '10.00' }}">
+        </div>
+      </div>
+
+      {% if property %}
+      <div class="form-group" style="margin-top: 0.5rem;">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" name="is_active" {% if property.is_active %}checked{% endif %}>
+          <span style="font-size: 0.875rem; font-weight: 500;">Active Branch</span>
+        </label>
+      </div>
+      {% endif %}
+
+      <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <button type="submit" class="btn btn-primary">Save Property</button>
+        <a href="{{ url_for('admin.properties_index') }}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  {% if property %}
+  <!-- Branch Managers Assignment Section -->
+  <div class="card" style="margin-top: 2rem;">
+    <div class="card-header">
+      <h3>Assigned Property Managers / Wardens</h3>
+    </div>
+    <p style="color: var(--slate-500); font-size: 0.8125rem; margin-bottom: 1rem;">
+      Managers assigned here can operate only inside this property branch.
+    </p>
+
+    <div style="margin-bottom: 1.5rem;">
+      <form method="POST" action="{{ url_for('admin.property_assign_manager', id=property.id) }}" style="display: flex; gap: 0.75rem; align-items: flex-end;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group" style="margin-bottom: 0; flex: 1;">
+          <label class="form-label">Assign Available Manager</label>
+          <select name="user_id" class="form-control" required>
+            <option value="">-- Select Manager Account --</option>
+            {% for m in available_managers %}
+              <option value="{{ m.id }}">{{ m.first_name }} {{ m.last_name }} ({{ m.email }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Assign Manager</button>
+      </form>
+    </div>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Manager Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Assigned Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pm in managers %}
+          <tr>
+            <td><strong>{{ pm.first_name }} {{ pm.last_name }}</strong></td>
+            <td>{{ pm.email }}</td>
+            <td>{{ pm.phone }}</td>
+            <td>{{ pm.assigned_at|format_date }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('admin.property_remove_manager', id=property.id, user_id=pm.user_id) }}" style="display: inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-danger" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" data-confirm="Remove this manager from this property?">Remove</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" style="text-align: center; color: var(--slate-500); padding: 1.5rem;">
+              No manager accounts currently assigned to this property.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

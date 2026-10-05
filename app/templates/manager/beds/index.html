@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Manage Beds - Manager Portal{% endblock %}
+{% block breadcrumbs %}Operations / Beds{% endblock %}
+{% block content %}
+<div>
+  <div style="margin-bottom: 1.5rem;">
+    <h1>Property Beds & Maintenance</h1>
+    <p style="color: var(--slate-500); font-size: 0.875rem;">Inspect vacated beds and approve cleaned beds for reuse.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+    <div class="card" style="padding: 1.25rem;">
+      <h3 style="margin-bottom: 0.75rem;">Bed Status Overview</h3>
+      <p style="font-size: 0.875rem; color: var(--slate-600);">
+        Checked-out beds remain in <strong>UNDER_MAINTENANCE</strong> until you inspect them and click <strong>Approve Cleaned</strong>.
+      </p>
+    </div>
+
+    <!-- Quick Add Bed -->
+    <div class="card" style="padding: 1.25rem;">
+      <form method="POST" action="{{ url_for('manager.bed_create') }}" style="display: flex; gap: 0.5rem; align-items: flex-end;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group" style="margin-bottom: 0; flex: 2;">
+          <label class="form-label">Room</label>
+          <select name="room_id" class="form-control" required>
+            <option value="">-- Room --</option>
+            {% for r in rooms %}
+              <option value="{{ r.id }}">Room {{ r.room_number }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 0; flex: 1;">
+          <label class="form-label">Bed</label>
+          <input type="text" name="bed_number" class="form-control" placeholder="e.g. B" required>
+        </div>
+        <button type="submit" class="btn btn-primary">+ Add</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Room</th>
+            <th>Bed Label</th>
+            <th>Monthly Rent</th>
+            <th>Status</th>
+            <th>Current Resident</th>
+            <th>Inspection Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in beds %}
+          <tr>
+            <td><strong>Room {{ b.room_number }}</strong> ({{ b.room_type }})</td>
+            <td><strong style="color: var(--primary-600); font-size: 1rem;">Bed {{ b.bed_number }}</strong></td>
+            <td><strong>{{ b.base_rent|currency }}</strong></td>
+            <td>
+              {% if b.status == 'AVAILABLE' %}
+                <span class="badge badge-available">AVAILABLE</span>
+              {% elif b.status == 'OCCUPIED' %}
+                <span class="badge badge-occupied">OCCUPIED</span>
+              {% elif b.status == 'UNDER_MAINTENANCE' %}
+                <span class="badge badge-maintenance">UNDER_MAINTENANCE</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if b.tenant_first_name %}
+                {{ b.tenant_first_name }} {{ b.tenant_last_name }}
+              {% else %}
+                <span style="color: var(--slate-400);">-</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if b.status == 'UNDER_MAINTENANCE' %}
+                <form method="POST" action="{{ url_for('manager.bed_approve_cleaning', id=b.id) }}" style="display: inline;">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn-primary" style="padding: 0.25rem 0.625rem; font-size: 0.75rem;" data-confirm="Confirm that bed is inspected, clean, and ready for check-in?">
+                    Approve Cleaned
+                  </button>
+                </form>
+              {% elif b.status == 'AVAILABLE' %}
+                <span style="color: var(--status-available-text); font-size: 0.8125rem;">Ready to allocate</span>
+              {% else %}
+                <span style="color: var(--slate-500); font-size: 0.8125rem;">Active resident</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" style="text-align: center; color: var(--slate-500); padding: 2rem;">No beds found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

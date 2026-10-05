@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Property Rooms - Manager Portal{% endblock %}
+{% block breadcrumbs %}Operations / Rooms{% endblock %}
+{% block content %}
+<div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1>Assigned Branch Rooms</h1>
+      <p style="color: var(--slate-500); font-size: 0.875rem;">Manage room capacities in your assigned property.</p>
+    </div>
+    <a href="{{ url_for('manager.room_create') }}" class="btn btn-primary">+ Add Room</a>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Room Number</th>
+            <th>Floor</th>
+            <th>Type</th>
+            <th>Base Rent</th>
+            <th>Available Beds</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rooms %}
+          <tr>
+            <td><strong style="color: var(--primary-600);">Room {{ r.room_number }}</strong></td>
+            <td>{{ r.floor }}</td>
+            <td><span class="badge badge-occupied">{{ r.room_type }}</span></td>
+            <td><strong>{{ r.base_rent|currency }}</strong></td>
+            <td>
+              <span class="badge badge-available">{{ r.available_beds or 0 }} Available</span>
+              <span style="color: var(--slate-500); font-size: 0.8125rem;">({{ r.total_beds }} total)</span>
+            </td>
+            <td>
+              {% if r.is_active %}<span class="badge badge-available">Active</span>{% else %}<span class="badge badge-maintenance">Inactive</span>{% endif %}
+            </td>
+            <td>
+              <a href="{{ url_for('manager.room_edit', id=r.id) }}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Edit</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" style="text-align: center; color: var(--slate-500); padding: 2rem;">No rooms configured in this property branch.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

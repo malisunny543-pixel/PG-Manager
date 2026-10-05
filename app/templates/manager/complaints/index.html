@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Property Complaints - Manager Portal{% endblock %}
+{% block breadcrumbs %}Operations / Complaints{% endblock %}
+{% block content %}
+<div>
+  <div style="margin-bottom: 1.5rem;">
+    <h1>Resident Complaints & Maintenance</h1>
+    <p style="color: var(--slate-500); font-size: 0.875rem;">Tickets submitted by residents of your assigned property.</p>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Ticket #</th>
+            <th>Resident</th>
+            <th>Room</th>
+            <th>Category</th>
+            <th>Title</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Submitted</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in complaints %}
+          <tr>
+            <td><strong>#{{ c.id }}</strong></td>
+            <td><strong>{{ c.tenant_first_name }} {{ c.tenant_last_name }}</strong></td>
+            <td>Room {{ c.room_number or '-' }}</td>
+            <td><span class="badge badge-occupied">{{ c.category }}</span></td>
+            <td>{{ c.title }}</td>
+            <td><span class="badge {% if c.priority in ('HIGH', 'URGENT') %}badge-overdue{% else %}badge-partial{% endif %}">{{ c.priority }}</span></td>
+            <td>
+              <span class="badge {% if c.status == 'RESOLVED' %}badge-paid{% elif c.status == 'OPEN' %}badge-overdue{% else %}badge-partial{% endif %}">
+                {{ c.status }}
+              </span>
+            </td>
+            <td>{{ c.created_at|format_date }}</td>
+            <td>
+              <a href="{{ url_for('manager.complaint_view', id=c.id) }}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Update</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="9" style="text-align: center; color: var(--slate-500); padding: 2rem;">No complaints reported in your branch.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

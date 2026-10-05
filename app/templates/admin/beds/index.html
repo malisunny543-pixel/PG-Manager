@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block title %}Manage Beds - PG Management System{% endblock %}
+{% block breadcrumbs %}Administration / Beds{% endblock %}
+
+{% block content %}
+<div>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Beds Directory &amp; Lifecycle</h1>
+      <p class="page-subtitle">
+        Monitor real-time bed occupancy, maintenance state, and approve beds after sanitary inspection.
+      </p>
+    </div>
+  </div>
+
+  <!-- Bed Lifecycle Visual Status Summary (Section 10) -->
+  {% set total_beds_count = beds|length %}
+  {% set avail_count = beds|selectattr('status', 'equalto', 'AVAILABLE')|list|length %}
+  {% set occ_count = beds|selectattr('status', 'equalto', 'OCCUPIED')|list|length %}
+  {% set maint_count = beds|selectattr('status', 'equalto', 'UNDER_MAINTENANCE')|list|length %}
+
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+    <!-- AVAILABLE -->
+    <div class="card" style="margin-bottom: 0; padding: 1.15rem; border-top: 3px solid #10b981;">
+      <div style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--status-available-text);">
+        AVAILABLE
+      </div>
+      <div style="font-size: 1.85rem; font-weight: 800; color: var(--status-available-text); margin: 0.25rem 0;">
+        {{ avail_count }}
+      </div>
+      <div style="font-size: 0.75rem; color: var(--slate-500);">Ready for new allocation</div>
+    </div>
+
+    <!-- OCCUPIED -->
+    <div class="card" style="margin-bottom: 0; padding: 1.15rem; border-top: 3px solid #3b82f6;">
+      <div style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--status-occupied-text);">
+        OCCUPIED
+      </div>
+      <div style="font-size: 1.85rem; font-weight: 800; color: var(--status-occupied-text); margin: 0.25rem 0;">
+        {{ occ_count }}
+      </div>
+      <div style="font-size: 0.75rem; color: var(--slate-500);">Active resident stays</div>
+    </div>
+
+    <!-- UNDER MAINTENANCE -->
+    <div class="card" style="margin-bottom: 0; padding: 1.15rem; border-top: 3px solid #f59e0b;">
+      <div style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--status-maintenance-text);">
+        UNDER MAINTENANCE
+      </div>
+      <div style="font-size: 1.85rem; font-weight: 800; color: var(--status-maintenance-text); margin: 0.25rem 0;">
+        {{ maint_count }}
+      </div>
+      <div style="font-size: 0.75rem; color: var(--slate-500);">Awaiting cleaning sign-off</div>
+    </div>
+
+    <!-- TOTAL -->
+    <div class="card" style="margin-bottom: 0; padding: 1.15rem; border-top: 3px solid var(--slate-400);">
+      <div style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--slate-600);">
+        TOTAL INVENTORY
+      </div>
+      <div style="font-size: 1.85rem; font-weight: 800; color: var(--slate-900); margin: 0.25rem 0;">
+        {{ total_beds_count }}
+      </div>
+      <div style="font-size: 0.75rem; color: var(--slate-500);">Current list scope</div>
+    </div>
+  </div>
+
+  <!-- Filter & Quick Add Section -->
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+    <div class="card" style="padding: 1.25rem; margin-bottom: 0;">
+      <form method="GET" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+        <div class="form-group" style="margin-bottom: 0; min-width: 180px;">
+          <label class="form-label">Property Branch</label>
+          <select name="property_id" class="form-control" onchange="this.form.submit()">
+            <option value="">-- All Properties --</option>
+            {% for p in properties %}
+              <option value="{{ p.id }}" {% if selected_prop|string == p.id|string %}selected{% endif %}>{{ p.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 0; min-width: 180px;">
+          <label class="form-label">Lifecycle Status</label>
+          <select name="status" class="form-control" onchange="this.form.submit()">
+            <option value="">-- All Statuses --</option>
+            <option value="AVAILABLE" {% if selected_status == 'AVAILABLE' %}selected{% endif %}>AVAILABLE</option>
+            <option value="OCCUPIED" {% if selected_status == 'OCCUPIED' %}selected{% endif %}>OCCUPIED</option>
+            <option value="UNDER_MAINTENANCE" {% if selected_status == 'UNDER_MAINTENANCE' %}selected{% endif %}>UNDER_MAINTENANCE</option>
+          </select>
+        </div>
+        <a href="{{ url_for('admin.beds_index') }}" class="btn btn-secondary">Reset</a>
+      </form>
+    </div>
+
+    <!-- Quick Add Bed Form -->
+    <div class="card" style="padding: 1.25rem; margin-bottom: 0;">
+      <form method="POST" action="{{ url_for('admin.bed_create') }}" style="display: flex; gap: 0.5rem; align-items: flex-end;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group" style="margin-bottom: 0; flex: 2;">
+          <label class="form-label">Room</label>
+          <select name="room_id" class="form-control" required>
+            <option value="">-- Select Room --</option>
+            {% for r in rooms %}
+              <option value="{{ r.id }}">Rm {{ r.room_number }} ({{ r.property_name }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 0; flex: 1;">
+          <label class="form-label">Bed No</label>
+          <input type="text" name="bed_number" class="form-control" placeholder="e.g. A" required>
+        </div>
+        <button type="submit" class="btn btn-primary">+ Add Bed</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Data Table with Sticky Header & Scannable Status -->
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table-sticky">
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Room</th>
+            <th>Bed Label</th>
+            <th class="text-right">Monthly Rent</th>
+            <th>Lifecycle Status</th>
+            <th>Current Resident</th>
+            <th>Actions / Inspection</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in beds %}
+          <tr>
+            <td><strong>{{ b.property_name }}</strong></td>
+            <td>Room {{ b.room_number }} <span style="font-size: 0.75rem; color: var(--slate-500);">({{ b.room_type }})</span></td>
+            <td><strong style="color: var(--primary-600); font-size: 0.9375rem;">Bed {{ b.bed_number }}</strong></td>
+            <td class="text-right tabular-nums"><strong>{{ b.base_rent|currency }}</strong></td>
+            <td>
+              {% if b.status == 'AVAILABLE' %}
+                <span class="badge badge-available">AVAILABLE</span>
+              {% elif b.status == 'OCCUPIED' %}
+                <span class="badge badge-occupied">OCCUPIED</span>
+              {% elif b.status == 'UNDER_MAINTENANCE' %}
+                <span class="badge badge-maintenance">UNDER_MAINTENANCE</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if b.tenant_first_name %}
+                <a href="{{ url_for('admin.tenant_view', id=b.current_allocation_id) }}" style="font-weight: 600; color: var(--primary-600); text-decoration: none;">
+                  {{ b.tenant_first_name }} {{ b.tenant_last_name }}
+                </a>
+              {% else %}
+                <span style="color: var(--slate-400); font-size: 0.8125rem;">None (Unallocated)</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if b.status == 'UNDER_MAINTENANCE' %}
+                <form method="POST" action="{{ url_for('admin.bed_approve_cleaning', id=b.id) }}" style="display: inline;">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn-primary" style="padding: 0.25rem 0.625rem; font-size: 0.75rem;" data-confirm="Approve bed inspection & cleaning? This bed will immediately become AVAILABLE for allocation.">
+                    Approve Cleaned
+                  </button>
+                </form>
+              {% elif b.status == 'AVAILABLE' %}
+                <span style="color: var(--status-available-text); font-size: 0.8125rem; font-weight: 500;">Ready for allocation</span>
+              {% else %}
+                <span style="color: var(--slate-500); font-size: 0.8125rem;">Active stay</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7">
+              <div class="empty-state">
+                <div class="empty-state-icon">🛏️</div>
+                <h3 class="empty-state-title">No Beds Found</h3>
+                <p class="empty-state-desc">No beds match the current filter selection or no rooms have beds assigned yet.</p>
+                <a href="{{ url_for('admin.beds_index') }}" class="btn btn-secondary">Clear Filters</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

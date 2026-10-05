@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}My Complaints - Resident Portal{% endblock %}
+{% block breadcrumbs %}Resident Portal / Complaints{% endblock %}
+{% block content %}
+<div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1>My Maintenance Complaints</h1>
+      <p style="color: var(--slate-500); font-size: 0.875rem;">Submit room or PG facility maintenance requests and monitor status.</p>
+    </div>
+    <a href="{{ url_for('tenant.complaint_create') }}" class="btn btn-primary">+ Submit Complaint</a>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Ticket #</th>
+            <th>Category</th>
+            <th>Subject</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Submitted On</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in complaints %}
+          <tr>
+            <td><strong>#{{ c.id }}</strong></td>
+            <td><span class="badge badge-occupied">{{ c.category }}</span></td>
+            <td><strong>{{ c.title }}</strong></td>
+            <td><span class="badge {% if c.priority in ('HIGH', 'URGENT') %}badge-overdue{% else %}badge-partial{% endif %}">{{ c.priority }}</span></td>
+            <td>
+              <span class="badge {% if c.status == 'RESOLVED' %}badge-paid{% elif c.status == 'OPEN' %}badge-overdue{% else %}badge-partial{% endif %}">
+                {{ c.status }}
+              </span>
+            </td>
+            <td>{{ c.created_at|format_date }}</td>
+            <td>
+              <a href="{{ url_for('tenant.complaint_view', id=c.id) }}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">View Timeline</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" style="text-align: center; color: var(--slate-500); padding: 2rem;">No complaints registered. Everything looks great!</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

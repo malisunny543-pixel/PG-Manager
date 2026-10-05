@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+{% block title %}Tenant: {{ tenant.first_name }} {{ tenant.last_name }}{% endblock %}
+{% block breadcrumbs %}Administration / <a href="{{ url_for('admin.tenants_index') }}">Tenants</a> / {{ tenant.first_name }} {{ tenant.last_name }}{% endblock %}
+{% block content %}
+<div>
+  <!-- Header Card -->
+  <div class="card" style="margin-bottom: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+      <div>
+        <h1>{{ tenant.first_name }} {{ tenant.last_name }}</h1>
+        <p style="color: var(--slate-500); font-size: 0.875rem;">Email: {{ tenant.email }} &bull; Phone: {{ tenant.phone }}</p>
+      </div>
+      <div>
+        {% if tenant.status == 'ACTIVE' %}
+          <span class="badge badge-occupied" style="font-size: 0.875rem; padding: 0.35rem 0.75rem;">ACTIVE RESIDENT</span>
+        {% elif tenant.status == 'CHECKED_OUT' %}
+          <span class="badge badge-maintenance" style="font-size: 0.875rem; padding: 0.35rem 0.75rem;">CHECKED_OUT</span>
+        {% else %}
+          <span class="badge badge-available" style="font-size: 0.875rem; padding: 0.35rem 0.75rem;">UNALLOCATED</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 1rem 0;">
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; font-size: 0.875rem;">
+      <div>
+        <span class="stat-label">Emergency Contact</span>
+        <p style="font-weight: 500;">{{ tenant.emergency_contact_name }} ({{ tenant.emergency_contact_phone }})</p>
+      </div>
+      <div>
+        <span class="stat-label">Identity Document</span>
+        <p style="font-weight: 500;">{{ tenant.id_proof_type }} &mdash; {{ tenant.id_proof_number }}</p>
+      </div>
+      <div>
+        <span class="stat-label">Permanent Address</span>
+        <p style="font-weight: 500;">{{ tenant.permanent_address }}</p>
+      </div>
+      <div>
+        <span class="stat-label">Registered Since</span>
+        <p style="font-weight: 500;">{{ tenant.created_at|format_date }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Allocations & Room Transfer History -->
+  <div class="card">
+    <div class="card-header">
+      <h2>Tenancy Allocations History</h2>
+      {% if tenant.status != 'ACTIVE' %}
+        <a href="{{ url_for('admin.checkin') }}" class="btn btn-primary" style="font-size: 0.8125rem;">+ New Check-in</a>
+      {% endif %}
+    </div>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Property Branch</th>
+            <th>Room & Bed</th>
+            <th>Check-in Date</th>
+            <th>Checkout Date</th>
+            <th>Monthly Rent</th>
+            <th>Deposit Status</th>
+            <th>Tenancy Status</th>
+            <th>Operational Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in allocations %}
+          <tr>
+            <td><strong>{{ a.property_name }}</strong></td>
+            <td><strong>Room {{ a.room_number }}</strong> (Bed {{ a.bed_number }})</td>
+            <td>{{ a.check_in_date|format_date }}</td>
+            <td>{{ a.actual_checkout_date|format_date if a.actual_checkout_date else (a.expected_checkout_date|format_date if a.expected_checkout_date else 'Active') }}</td>
+            <td><strong>{{ a.monthly_rent|currency }}</strong></td>
+            <td>
+              <span class="badge {% if a.settlement_status == 'SETTLED' %}badge-paid{% elif a.settlement_status == 'PENDING_APPROVAL' %}badge-partial{% else %}badge-occupied{% endif %}">
+                {{ a.settlement_status or 'HELD' }}
+              </span>
+            </td>
+            <td>
+              {% if a.status == 'ACTIVE' %}
+                <span class="badge badge-occupied">ACTIVE</span>
+              {% elif a.status == 'TRANSFERRED' %}
+                <span class="badge badge-maintenance">TRANSFERRED</span>
+              {% else %}
+                <span class="badge badge-maintenance">CHECKED_OUT</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if a.status == 'ACTIVE' %}
+                <div style="display: flex; gap: 0.5rem;">
+                  <a href="{{ url_for('admin.checkout_inspect', id=a.id) }}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                    Checkout & Inspect
+                  </a>
+                  <!-- Room Transfer trigger button -->
+                  <button type="button" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('transfer-modal-{{ a.id }}').style.display='block'">
+                    Transfer Bed
+                  </button>
+                </div>
+
+                <!-- Simple Inline Transfer Modal -->
+                <div id="transfer-modal-{{ a.id }}" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 100; padding: 2rem;">
+                  <div class="card" style="max-width: 500px; margin: 5rem auto; background: #fff;">
+                    <div class="card-header">
+                      <h3>Transfer Resident to Another Bed</h3>
+                    </div>
+                    <form method="POST" action="{{ url_for('admin.transfer', id=a.id) }}">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <div class="form-group">
+                        <label class="form-label">Available Target Bed</label>
+                        <select name="new_bed_id" class="form-control" required>
+                          <option value="">-- Select Available Bed --</option>
+                          {% for b in available_beds %}
+                            <option value="{{ b.bed_id }}">{{ b.property_name }} - Room {{ b.room_number }} (Bed {{ b.bed_number }}) - {{ b.base_rent|currency }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Effective Transfer Date</label>
+                        <input type="date" name="transfer_date" class="form-control" required value="{{ now|default('') }}">
+                      </div>
+                      <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('transfer-modal-{{ a.id }}').style.display='none'">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Execute Transfer</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              {% else %}
+                <span style="color: var(--slate-400); font-size: 0.8125rem;">Historical</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--slate-500); padding: 1.5rem;">
+              No allocation records yet for this tenant.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Invoices and Payments Section -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+    <!-- Invoices Card -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Invoices</h3>
+      </div>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Invoice</th>
+              <th>Month</th>
+              <th>Total</th>
+              <th>Balance</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for inv in invoices %}
+            <tr>
+              <td><a href="{{ url_for('admin.invoice_view', id=inv.id) }}">{{ inv.invoice_number }}</a></td>
+              <td>{{ inv.billing_month }}</td>
+              <td><strong>{{ inv.total_amount|currency }}</strong></td>
+              <td>{{ inv.balance_due|currency }}</td>
+              <td>
+                <span class="badge {% if inv.status == 'PAID' %}badge-paid{% elif inv.status == 'PARTIAL' %}badge-partial{% else %}badge-overdue{% endif %}">
+                  {{ inv.status }}
+                </span>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" style="text-align: center; color: var(--slate-400); padding: 1rem;">No invoices generated.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Payments Card -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Payments Ledger</h3>
+      </div>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Method</th>
+              <th>Reference</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in payments %}
+            <tr>
+              <td>{{ p.payment_date|format_date }}</td>
+              <td><strong style="color: var(--status-paid-text);">{{ p.amount|currency }}</strong></td>
+              <td><span class="badge badge-occupied">{{ p.payment_method }}</span></td>
+              <td><span style="font-family: monospace; font-size: 0.8125rem;">{{ p.transaction_reference }}</span></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" style="text-align: center; color: var(--slate-400); padding: 1rem;">No payments logged yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Tenants - Manager Portal{% endblock %}
+{% block breadcrumbs %}Operations / Tenants{% endblock %}
+{% block content %}
+<div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1>Active Residents Directory</h1>
+      <p style="color: var(--slate-500); font-size: 0.875rem;">Tenants currently residing in your assigned property.</p>
+    </div>
+    <a href="{{ url_for('manager.checkin') }}" class="btn btn-primary">+ Check-in Tenant</a>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Resident Name</th>
+            <th>Contact Phone</th>
+            <th>Email</th>
+            <th>Room & Bed</th>
+            <th>Emergency Contact</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in tenants %}
+          <tr>
+            <td>
+              <a href="{{ url_for('manager.tenant_view', id=t.id) }}" style="font-weight: 600; color: var(--slate-900);">
+                {{ t.first_name }} {{ t.last_name }}
+              </a>
+            </td>
+            <td>{{ t.phone }}</td>
+            <td>{{ t.email }}</td>
+            <td><strong>Room {{ t.room_number }}</strong> (Bed {{ t.bed_number }})</td>
+            <td><span style="font-size: 0.8125rem;">{{ t.emergency_contact_name }} ({{ t.emergency_contact_phone }})</span></td>
+            <td>
+              <a href="{{ url_for('manager.tenant_view', id=t.id) }}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Details</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" style="text-align: center; color: var(--slate-500); padding: 2rem;">No active tenants in this property branch.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

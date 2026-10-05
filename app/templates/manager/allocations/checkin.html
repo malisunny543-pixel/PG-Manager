@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Tenant Check-in - Manager Portal{% endblock %}
+{% block breadcrumbs %}Operations / Check-in{% endblock %}
+{% block content %}
+<div style="max-width: 700px;">
+  <div class="card">
+    <div class="card-header">
+      <h2>Tenant Check-in & Bed Allocation</h2>
+    </div>
+
+    <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="form-group">
+        <label class="form-label" for="tenant_id">Select Registered Tenant *</label>
+        <select id="tenant_id" name="tenant_id" class="form-control" required>
+          <option value="">-- Choose Tenant --</option>
+          {% for t in tenants %}
+            <option value="{{ t.id }}">{{ t.first_name }} {{ t.last_name }} ({{ t.phone }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="bed_id">Select Available Bed in Branch *</label>
+        <select id="bed_id" name="bed_id" class="form-control" required onchange="setDefaults(this)">
+          <option value="">-- Available Beds --</option>
+          {% for b in beds %}
+            <option value="{{ b.bed_id }}" data-rent="{{ b.base_rent }}" data-deposit="{{ b.suggested_deposit }}">
+              Room {{ b.room_number }} (Bed {{ b.bed_number }}, {{ b.room_type }}) &mdash; {{ b.base_rent|currency }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="check_in_date">Check-in Date *</label>
+          <input type="date" id="check_in_date" name="check_in_date" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="expected_checkout_date">Expected Checkout Date</label>
+          <input type="date" id="expected_checkout_date" name="expected_checkout_date" class="form-control">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="monthly_rent">Agreed Monthly Rent (₹) *</label>
+          <input type="number" step="0.01" id="monthly_rent" name="monthly_rent" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="security_deposit_amount">Agreed Security Deposit (₹) *</label>
+          <input type="number" step="0.01" id="security_deposit_amount" name="security_deposit_amount" class="form-control" required>
+        </div>
+      </div>
+
+      <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <button type="submit" class="btn btn-primary">Check-in Resident</button>
+        <a href="{{ url_for('manager.tenants_index') }}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function setDefaults(sel) {
+  const opt = sel.options[sel.selectedIndex];
+  if (opt && opt.dataset.rent) {
+    document.getElementById('monthly_rent').value = opt.dataset.rent;
+    document.getElementById('security_deposit_amount').value = opt.dataset.deposit || opt.dataset.rent;
+  }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const dt = document.getElementById('check_in_date');
+  if (dt && !dt.value) dt.value = new Date().toISOString().split('T')[0];
+});
+</script>
+{% endblock %}

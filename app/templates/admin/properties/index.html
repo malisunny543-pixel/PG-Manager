@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Manage Properties - PG Management System{% endblock %}
+{% block breadcrumbs %}Administration / Properties{% endblock %}
+{% block content %}
+<div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1>PG Properties & Branches</h1>
+      <p style="color: var(--slate-500); font-size: 0.875rem;">Manage all PG properties, address records, and defaults.</p>
+    </div>
+    <a href="{{ url_for('admin.property_create') }}" class="btn btn-primary">+ Add Property</a>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Property Name</th>
+            <th>City / State</th>
+            <th>Contact Phone</th>
+            <th>Default Deposit</th>
+            <th>Utility Rate</th>
+            <th>Rooms / Beds</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in properties %}
+          <tr>
+            <td><strong style="color: var(--slate-900);">{{ p.code }}</strong></td>
+            <td>{{ p.name }}</td>
+            <td>{{ p.city }}, {{ p.state }}</td>
+            <td>{{ p.contact_phone }}</td>
+            <td>{{ p.default_deposit_amount|currency }}</td>
+            <td>₹{{ p.default_utility_rate }}/unit</td>
+            <td>
+              <span style="font-weight: 500;">{{ p.total_rooms }} Rooms</span>
+              <span style="color: var(--slate-500); font-size: 0.75rem;">({{ p.occupied_beds }}/{{ p.total_beds }} occupied)</span>
+            </td>
+            <td>
+              {% if p.is_active %}
+                <span class="badge badge-available">Active</span>
+              {% else %}
+                <span class="badge badge-maintenance">Inactive</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{{ url_for('admin.property_edit', id=p.id) }}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Edit / Managers</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="9" style="text-align: center; padding: 2rem; color: var(--slate-500);">
+              No properties registered yet. Click "+ Add Property" to begin.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

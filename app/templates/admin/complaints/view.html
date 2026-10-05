@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Complaint #{{ complaint.id }} - {{ complaint.title }}{% endblock %}
+{% block breadcrumbs %}Administration / <a href="{{ url_for('admin.complaints_index') }}">Complaints</a> / #{{ complaint.id }}{% endblock %}
+{% block content %}
+<div style="max-width: 800px;">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2>Complaint #{{ complaint.id }}: {{ complaint.title }}</h2>
+        <span style="font-size: 0.875rem; color: var(--slate-500);">Submitted on {{ complaint.created_at|format_date('%d %b %Y, %I:%M %p') }}</span>
+      </div>
+      <div>
+        <span class="badge {% if complaint.status == 'RESOLVED' %}badge-paid{% elif complaint.status == 'OPEN' %}badge-overdue{% else %}badge-partial{% endif %}" style="font-size: 0.875rem; padding: 0.35rem 0.75rem;">
+          {{ complaint.status }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Metadata Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; font-size: 0.875rem;">
+      <div>
+        <span class="stat-label">Resident</span>
+        <p style="font-weight: 600;">{{ complaint.tenant_first_name }} {{ complaint.tenant_last_name }}</p>
+        <p style="color: var(--slate-500); font-size: 0.8125rem;">Phone: {{ complaint.tenant_phone }}</p>
+      </div>
+      <div>
+        <span class="stat-label">Location</span>
+        <p style="font-weight: 500;">{{ complaint.property_name }}</p>
+        <p style="color: var(--slate-500); font-size: 0.8125rem;">Room {{ complaint.room_number or 'Common Area' }}</p>
+      </div>
+      <div>
+        <span class="stat-label">Category & Priority</span>
+        <p><span class="badge badge-occupied">{{ complaint.category }}</span> <span class="badge badge-partial">{{ complaint.priority }}</span></p>
+      </div>
+    </div>
+
+    <div class="card-header" style="padding-top: 0.5rem;">
+      <h3>Description of Grievance</h3>
+    </div>
+    <div style="padding: 1rem; background: var(--slate-50); border-radius: var(--radius-sm); margin-bottom: 2rem; white-space: pre-wrap; font-size: 0.9375rem; line-height: 1.6;">
+      {{ complaint.description }}
+    </div>
+
+    <!-- Update Action Form -->
+    <div class="card-header">
+      <h3>Update Status & Resolution</h3>
+    </div>
+    <form method="POST" action="{{ url_for('admin.complaint_update', id=complaint.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="status">Ticket Status *</label>
+          <select id="status" name="status" class="form-control" required>
+            <option value="OPEN" {% if complaint.status == 'OPEN' %}selected{% endif %}>OPEN</option>
+            <option value="ASSIGNED" {% if complaint.status == 'ASSIGNED' %}selected{% endif %}>ASSIGNED</option>
+            <option value="IN_PROGRESS" {% if complaint.status == 'IN_PROGRESS' %}selected{% endif %}>IN_PROGRESS</option>
+            <option value="RESOLVED" {% if complaint.status == 'RESOLVED' %}selected{% endif %}>RESOLVED</option>
+            <option value="CLOSED" {% if complaint.status == 'CLOSED' %}selected{% endif %}>CLOSED</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="assigned_to_user_id">Assign Staff Member</label>
+          <select id="assigned_to_user_id" name="assigned_to_user_id" class="form-control">
+            <option value="">-- Unassigned --</option>
+            {% for s in staff_users %}
+              <option value="{{ s.id }}" {% if complaint.assigned_to_user_id == s.id %}selected{% endif %}>
+                {{ s.first_name }} {{ s.last_name }} ({{ s.role }})
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="resolution_notes">Resolution Remarks</label>
+        <textarea id="resolution_notes" name="resolution_notes" class="form-control" rows="3" placeholder="Steps taken, technician report, or resolution timeline...">{{ complaint.resolution_notes or '' }}</textarea>
+      </div>
+
+      <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+        <button type="submit" class="btn btn-primary">Update Complaint</button>
+        <a href="{{ url_for('admin.complaints_index') }}" class="btn btn-secondary">Back to Queue</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

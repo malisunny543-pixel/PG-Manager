@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Invoice {{ invoice.invoice_number }}{% endblock %}
+{% block breadcrumbs %}Administration / <a href="{{ url_for('admin.invoices_index') }}">Invoices</a> / {{ invoice.invoice_number }}{% endblock %}
+{% block content %}
+<div style="max-width: 800px;">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2>Invoice {{ invoice.invoice_number }}</h2>
+        <span style="color: var(--slate-500); font-size: 0.875rem;">Billing Month: {{ invoice.billing_month }}</span>
+      </div>
+      <div>
+        <span class="badge {% if invoice.status == 'PAID' %}badge-paid{% elif invoice.status == 'PARTIAL' %}badge-partial{% else %}badge-overdue{% endif %}" style="font-size: 0.875rem; padding: 0.35rem 0.75rem;">
+          {{ invoice.status }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Invoice Meta -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; font-size: 0.875rem;">
+      <div>
+        <span class="stat-label">Billed To</span>
+        <p style="font-weight: 600; font-size: 1rem;">{{ invoice.first_name }} {{ invoice.last_name }}</p>
+        <p style="color: var(--slate-500); font-size: 0.8125rem;">Phone: {{ invoice.phone }}</p>
+      </div>
+      <div>
+        <span class="stat-label">Accommodation</span>
+        <p style="font-weight: 500;">{{ invoice.property_name }}</p>
+        <p style="color: var(--slate-500); font-size: 0.8125rem;">Room {{ invoice.room_number }} (Bed {{ invoice.bed_number }})</p>
+      </div>
+      <div>
+        <span class="stat-label">Payment Due Date</span>
+        <p style="font-weight: 600; color: #991b1b;">{{ invoice.due_date|format_date }}</p>
+      </div>
+    </div>
+
+    <!-- Line items -->
+    <div class="table-responsive" style="margin-bottom: 1.5rem;">
+      <table>
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th style="text-align: right;">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Monthly Room Rent (Agreed Base)</td>
+            <td style="text-align: right; font-weight: 500;">{{ invoice.rent_amount|currency }}</td>
+          </tr>
+          <tr>
+            <td>Electricity & Utility Charges</td>
+            <td style="text-align: right; font-weight: 500;">{{ invoice.utility_amount|currency }}</td>
+          </tr>
+          <tr style="background: var(--slate-50);">
+            <td><strong>Total Bill Amount</strong></td>
+            <td style="text-align: right; font-weight: 700; font-size: 1.125rem;">{{ invoice.total_amount|currency }}</td>
+          </tr>
+          <tr>
+            <td>Amount Paid to Date</td>
+            <td style="text-align: right; color: var(--status-paid-text); font-weight: 600;">- {{ invoice.paid_amount|currency }}</td>
+          </tr>
+          <tr style="background: var(--primary-50);">
+            <td><strong style="color: var(--primary-900);">Balance Due</strong></td>
+            <td style="text-align: right; font-weight: 700; font-size: 1.25rem; color: {% if invoice.balance_due > 0 %}#991b1b{% else %}#166534{% endif %};">
+              {{ invoice.balance_due|currency }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    {% if invoice.balance_due > 0 %}
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 2rem;">
+      <a href="{{ url_for('admin.payment_record', invoice_id=invoice.id) }}" class="btn btn-primary">
+        + Record Payment Against This Invoice
+      </a>
+    </div>
+    {% endif %}
+
+    <!-- Payments Ledger -->
+    <div class="card-header" style="padding-top: 1rem;">
+      <h3>Payment Transactions Recorded</h3>
+    </div>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Date & Time</th>
+            <th>Amount Paid</th>
+            <th>Method</th>
+            <th>Reference No</th>
+            <th>Recorded By</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in invoice.payments %}
+          <tr>
+            <td>{{ p.payment_date|format_date('%d %b %Y, %I:%M %p') }}</td>
+            <td><strong style="color: var(--status-paid-text);">{{ p.amount|currency }}</strong></td>
+            <td><span class="badge badge-occupied">{{ p.payment_method }}</span></td>
+            <td><span style="font-family: monospace;">{{ p.transaction_reference }}</span></td>
+            <td>{{ p.recorded_by_first }} {{ p.recorded_by_last }}</td>
+            <td>{{ p.notes or '-' }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" style="text-align: center; color: var(--slate-500); padding: 1.5rem;">
+              No payment transactions recorded against this invoice yet.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

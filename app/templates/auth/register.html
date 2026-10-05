@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Tenant Registration - PG Management System{% endblock %}
+{% block public_container_class %}auth-layout-container{% endblock %}
+
+{% block public_content %}
+<div class="card auth-register-card motion-reveal" style="max-width: 680px; margin: 2rem auto; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);">
+  <div class="auth-form-header" style="text-align: center; margin-bottom: 2rem;">
+    <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+      <span class="brand-badge" style="font-size: 0.8125rem;">PG</span>
+      <span style="font-weight: 800; font-size: 1.1rem; color: var(--slate-900);">PG Manager</span>
+    </div>
+    <h2 class="auth-form-title" style="font-size: 1.75rem;">Tenant Registration</h2>
+    <p class="auth-form-subtitle">Create your resident portal profile. Bed allocation and room assignment will be finalized by PG staff.</p>
+  </div>
+
+  <form method="POST" action="{{ url_for('auth.register') }}" class="auth-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div class="form-group">
+        <label class="form-label" for="first_name">First Name *</label>
+        <input type="text" id="first_name" name="first_name" class="form-control auth-input" required placeholder="John">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="last_name">Last Name *</label>
+        <input type="text" id="last_name" name="last_name" class="form-control auth-input" required placeholder="Doe">
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address *</label>
+        <input type="email" id="email" name="email" class="form-control auth-input" required placeholder="john.doe@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="phone">Phone Number *</label>
+        <input type="tel" id="phone" name="phone" class="form-control auth-input" required placeholder="+91 98765 43210">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="password">Create Password * (minimum 6 characters)</label>
+      <input type="password" id="password" name="password" class="form-control auth-input" required minlength="6" placeholder="••••••••">
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div class="form-group">
+        <label class="form-label" for="emergency_name">Emergency Contact Name *</label>
+        <input type="text" id="emergency_name" name="emergency_name" class="form-control auth-input" required placeholder="Guardian / Relative Name">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="emergency_phone">Emergency Contact Phone *</label>
+        <input type="tel" id="emergency_phone" name="emergency_phone" class="form-control auth-input" required placeholder="+91 98765 00000">
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+      <div class="form-group">
+        <label class="form-label" for="id_proof_type">ID Proof Type *</label>
+        <select id="id_proof_type" name="id_proof_type" class="form-control auth-input" required>
+          <option value="Aadhaar">Aadhaar</option>
+          <option value="Passport">Passport</option>
+          <option value="Driving License">Driving License</option>
+          <option value="Voter ID">Voter ID</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="id_proof_number">ID Proof Document Number *</label>
+        <input type="text" id="id_proof_number" name="id_proof_number" class="form-control auth-input" required placeholder="Document Reference / ID">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="permanent_address">Permanent Home Address *</label>
+      <textarea id="permanent_address" name="permanent_address" class="form-control auth-input" rows="2" required placeholder="Street address, city, state, postal code"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary auth-submit-btn" style="width: 100%; margin-top: 1rem; padding: 0.85rem;">
+      Complete Resident Registration &rarr;
+    </button>
+  </form>
+
+  <div class="auth-form-footer" style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: var(--slate-600);">
+    Already registered? <a href="{{ url_for('auth.login') }}" style="color: var(--primary-600); font-weight: 600; text-decoration: none;">Sign in to your portal</a>
+  </div>
+</div>
+{% endblock %}

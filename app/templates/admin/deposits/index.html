@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Security Deposits Ledger - PG Management System{% endblock %}
+{% block breadcrumbs %}Administration / Security Deposits{% endblock %}
+{% block content %}
+<div>
+  <div style="margin-bottom: 1.5rem;">
+    <h1>Security Deposits Ledger</h1>
+    <p style="color: var(--slate-500); font-size: 0.875rem;">
+      Audit log of escrow security deposits collected at check-in, approved deductions, and settlement refunds.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Resident Name</th>
+            <th>Property Branch</th>
+            <th>Room & Bed</th>
+            <th>Total Received</th>
+            <th>Deductions</th>
+            <th>Refund Disbursed</th>
+            <th>Settlement Status</th>
+            <th>Settled Date</th>
+            <th>Authorized By</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in deposits %}
+          <tr>
+            <td><strong>{{ d.first_name }} {{ d.last_name }}</strong></td>
+            <td>{{ d.property_name }}</td>
+            <td>Rm {{ d.room_number }} (Bed {{ d.bed_number }})</td>
+            <td><strong style="color: var(--primary-700);">{{ d.total_deposit_received|currency }}</strong></td>
+            <td>{{ d.deductions_amount|currency if d.deductions_amount > 0 else '-' }}</td>
+            <td>
+              {% if d.settlement_status == 'SETTLED' %}
+                <strong style="color: var(--status-paid-text);">{{ d.refund_amount|currency }}</strong>
+              {% else %}
+                <span style="color: var(--slate-400);">-</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge {% if d.settlement_status == 'SETTLED' %}badge-paid{% elif d.settlement_status == 'PENDING_APPROVAL' %}badge-partial{% else %}badge-occupied{% endif %}">
+                {{ d.settlement_status }}
+              </span>
+            </td>
+            <td>{{ d.settled_at|format_date if d.settled_at else '-' }}</td>
+            <td>{{ d.authorizer_first or '-' }}</td>
+            <td><span style="font-size: 0.8125rem;">{{ d.settlement_notes or '-' }}</span></td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="10" style="text-align: center; color: var(--slate-500); padding: 2rem;">
+              No security deposit records found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Complaint #{{ complaint.id }} - Resident Portal{% endblock %}
+{% block breadcrumbs %}Resident Portal / <a href="{{ url_for('tenant.complaints') }}">Complaints</a> / #{{ complaint.id }}{% endblock %}
+{% block content %}
+<div style="max-width: 750px;">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2>Complaint #{{ complaint.id }}: {{ complaint.title }}</h2>
+        <span style="font-size: 0.8125rem; color: var(--slate-500);">Submitted on {{ complaint.created_at|format_date('%d %b %Y, %I:%M %p') }}</span>
+      </div>
+      <span class="badge {% if complaint.status == 'RESOLVED' %}badge-paid{% elif complaint.status == 'OPEN' %}badge-overdue{% else %}badge-partial{% endif %}" style="font-size: 0.875rem; padding: 0.35rem 0.75rem;">
+        {{ complaint.status }}
+      </span>
+    </div>
+
+    <div style="display: flex; gap: 1rem; margin: 1rem 0;">
+      <span class="badge badge-occupied">{{ complaint.category }}</span>
+      <span class="badge badge-partial">Priority: {{ complaint.priority }}</span>
+      <span style="color: var(--slate-500); font-size: 0.875rem;">Location: {{ complaint.property_name }}{% if complaint.room_number %}, Room {{ complaint.room_number }}{% endif %}</span>
+    </div>
+
+    <div class="card-header" style="padding-top: 1rem;">
+      <h3>Your Description</h3>
+    </div>
+    <div style="padding: 1rem; background: var(--slate-50); border-radius: var(--radius-sm); font-size: 0.9375rem; white-space: pre-wrap; margin-bottom: 2rem;">
+      {{ complaint.description }}
+    </div>
+
+    <div class="card-header">
+      <h3>Staff Resolution & Notes</h3>
+    </div>
+    <div style="padding: 1rem; background: #fdfdfd; border: 1px solid var(--border-color); border-radius: var(--radius-sm);">
+      {% if complaint.resolution_notes %}
+        <p style="color: var(--slate-800); font-size: 0.9375rem; white-space: pre-wrap;">{{ complaint.resolution_notes }}</p>
+        <span style="font-size: 0.75rem; color: var(--slate-500); display: block; margin-top: 0.5rem;">
+          Assigned to: {{ complaint.assigned_first_name }} {{ complaint.assigned_last_name }}
+        </span>
+      {% else %}
+        <p style="color: var(--slate-500); font-style: italic; font-size: 0.875rem;">
+          Your ticket is currently queued for review. Staff will update resolution progress here.
+        </p>
+      {% endif %}
+    </div>
+
+    <div style="margin-top: 1.5rem;">
+      <a href="{{ url_for('tenant.complaints') }}" class="btn btn-secondary">&larr; Back to My Complaints</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

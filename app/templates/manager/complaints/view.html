@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Complaint #{{ complaint.id }} - Manager Portal{% endblock %}
+{% block breadcrumbs %}Operations / <a href="{{ url_for('manager.complaints_index') }}">Complaints</a> / #{{ complaint.id }}{% endblock %}
+{% block content %}
+<div style="max-width: 750px;">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2>Complaint #{{ complaint.id }}: {{ complaint.title }}</h2>
+        <span style="font-size: 0.8125rem; color: var(--slate-500);">Submitted by {{ complaint.tenant_first_name }} {{ complaint.tenant_last_name }}</span>
+      </div>
+      <div>
+        <span class="badge {% if complaint.status == 'RESOLVED' %}badge-paid{% elif complaint.status == 'OPEN' %}badge-overdue{% else %}badge-partial{% endif %}" style="font-size: 0.875rem;">
+          {{ complaint.status }}
+        </span>
+      </div>
+    </div>
+
+    <div style="margin: 1rem 0; padding: 1rem; background: var(--slate-50); border-radius: var(--radius-sm); font-size: 0.9375rem; white-space: pre-wrap;">
+      {{ complaint.description }}
+    </div>
+
+    <form method="POST" action="{{ url_for('manager.complaint_status', id=complaint.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="form-group">
+        <label class="form-label" for="status">Update Status *</label>
+        <select id="status" name="status" class="form-control" required>
+          <option value="OPEN" {% if complaint.status == 'OPEN' %}selected{% endif %}>OPEN</option>
+          <option value="IN_PROGRESS" {% if complaint.status == 'IN_PROGRESS' %}selected{% endif %}>IN_PROGRESS</option>
+          <option value="RESOLVED" {% if complaint.status == 'RESOLVED' %}selected{% endif %}>RESOLVED</option>
+          <option value="CLOSED" {% if complaint.status == 'CLOSED' %}selected{% endif %}>CLOSED</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="resolution_notes">Resolution / Action Remarks</label>
+        <textarea id="resolution_notes" name="resolution_notes" class="form-control" rows="3" placeholder="Action taken to fix the issue...">{{ complaint.resolution_notes or '' }}</textarea>
+      </div>
+
+      <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{{ url_for('manager.complaints_index') }}" class="btn btn-secondary">Back</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

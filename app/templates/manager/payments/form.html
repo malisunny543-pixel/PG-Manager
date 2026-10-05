@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Record Payment - Manager Portal{% endblock %}
+{% block breadcrumbs %}Operations / Record Payment{% endblock %}
+{% block content %}
+<div style="max-width: 600px;">
+  <div class="card">
+    <div class="card-header">
+      <h2>Record Resident Payment</h2>
+    </div>
+
+    <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="form-group">
+        <label class="form-label" for="invoice_id">Pending Invoice *</label>
+        <select id="invoice_id" name="invoice_id" class="form-control" required onchange="setMax(this)">
+          <option value="">-- Select Resident Invoice --</option>
+          {% for inv in invoices %}
+            <option value="{{ inv.id }}" data-balance="{{ inv.balance_due }}">
+              {{ inv.first_name }} {{ inv.last_name }} ({{ inv.billing_month }}) &mdash; Balance: {{ inv.balance_due|currency }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="amount">Amount Collected (₹) *</label>
+          <input type="number" step="0.01" id="amount" name="amount" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="payment_method">Payment Mode *</label>
+          <select id="payment_method" name="payment_method" class="form-control" required>
+            <option value="UPI">UPI / QR</option>
+            <option value="CASH">Cash</option>
+            <option value="BANK_TRANSFER">Bank Transfer</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="transaction_reference">Receipt / UTR Reference *</label>
+        <input type="text" id="transaction_reference" name="transaction_reference" class="form-control" required placeholder="Receipt no or UPI reference">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="notes">Remarks</label>
+        <input type="text" id="notes" name="notes" class="form-control" placeholder="Optional notes">
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Log Payment</button>
+    </form>
+  </div>
+</div>
+
+<script>
+function setMax(sel) {
+  const opt = sel.options[sel.selectedIndex];
+  if (opt && opt.dataset.balance) {
+    document.getElementById('amount').value = opt.dataset.balance;
+  }
+}
+</script>
+{% endblock %}

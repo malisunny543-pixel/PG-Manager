@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}My Profile - Resident Portal{% endblock %}
+{% block breadcrumbs %}Resident Portal / Profile{% endblock %}
+{% block content %}
+<div style="max-width: 700px;">
+  <div class="card">
+    <div class="card-header">
+      <h2>Resident Profile & KYC</h2>
+      <span class="badge badge-occupied">{{ tenant.status }}</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+      <div>
+        <span class="stat-label">Full Name</span>
+        <p style="font-weight: 600; font-size: 1rem;">{{ tenant.first_name }} {{ tenant.last_name }}</p>
+      </div>
+      <div>
+        <span class="stat-label">Registered Email</span>
+        <p style="font-weight: 500;">{{ tenant.email }}</p>
+      </div>
+      <div>
+        <span class="stat-label">Contact Phone</span>
+        <p style="font-weight: 500;">{{ tenant.phone }}</p>
+      </div>
+      <div>
+        <span class="stat-label">Identity Document</span>
+        <p style="font-weight: 500;">{{ tenant.id_proof_type }}: {{ tenant.id_proof_number }}</p>
+      </div>
+      <div style="grid-column: span 2;">
+        <span class="stat-label">Emergency Contact</span>
+        <p style="font-weight: 500;">{{ tenant.emergency_contact_name }} &bull; {{ tenant.emergency_contact_phone }}</p>
+      </div>
+      <div style="grid-column: span 2;">
+        <span class="stat-label">Permanent Residential Address</span>
+        <p style="font-weight: 500;">{{ tenant.permanent_address }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

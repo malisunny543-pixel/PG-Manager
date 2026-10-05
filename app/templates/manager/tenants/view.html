@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Resident Details - {{ tenant.first_name }} {{ tenant.last_name }}{% endblock %}
+{% block breadcrumbs %}Operations / <a href="{{ url_for('manager.tenants_index') }}">Tenants</a> / {{ tenant.first_name }} {{ tenant.last_name }}{% endblock %}
+{% block content %}
+<div style="max-width: 800px;">
+  <div class="card">
+    <div class="card-header">
+      <h2>{{ tenant.first_name }} {{ tenant.last_name }}</h2>
+      <span class="badge badge-occupied">{{ tenant.status }}</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; font-size: 0.875rem;">
+      <div>
+        <span class="stat-label">Phone</span>
+        <p style="font-weight: 500;">{{ tenant.phone }}</p>
+      </div>
+      <div>
+        <span class="stat-label">Email</span>
+        <p style="font-weight: 500;">{{ tenant.email }}</p>
+      </div>
+      <div>
+        <span class="stat-label">Emergency Contact</span>
+        <p style="font-weight: 500;">{{ tenant.emergency_contact_name }} ({{ tenant.emergency_contact_phone }})</p>
+      </div>
+      <div>
+        <span class="stat-label">Identity Document</span>
+        <p style="font-weight: 500;">{{ tenant.id_proof_type }}: {{ tenant.id_proof_number }}</p>
+      </div>
+      <div style="grid-column: span 2;">
+        <span class="stat-label">Permanent Address</span>
+        <p style="font-weight: 500;">{{ tenant.permanent_address }}</p>
+      </div>
+    </div>
+
+    <div class="card-header">
+      <h3>Active / Past Allocations</h3>
+    </div>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Room & Bed</th>
+            <th>Check-in Date</th>
+            <th>Rent</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in allocations %}
+          <tr>
+            <td><strong>Room {{ a.room_number }}</strong> (Bed {{ a.bed_number }})</td>
+            <td>{{ a.check_in_date|format_date }}</td>
+            <td>{{ a.monthly_rent|currency }}</td>
+            <td><span class="badge {% if a.status == 'ACTIVE' %}badge-occupied{% else %}badge-maintenance{% endif %}">{{ a.status }}</span></td>
+            <td>
+              {% if a.status == 'ACTIVE' %}
+                <a href="{{ url_for('manager.checkout_inspect', id=a.id) }}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                  Checkout Inspection
+                </a>
+              {% else %}
+                <span style="color: var(--slate-400); font-size: 0.8125rem;">Checked-out</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

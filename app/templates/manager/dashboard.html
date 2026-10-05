@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Manager Dashboard - PG Management System{% endblock %}
+{% block breadcrumbs %}Operations / Property Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Property Operations Dashboard</h1>
+      <p class="page-subtitle">Branch-scoped operational view for assigned properties and resident rooms.</p>
+    </div>
+    <div class="page-actions">
+      <a href="/manager/allocations/check-in" class="btn btn-primary">+ Check-in Tenant</a>
+      <a href="/manager/payments/record" class="btn btn-secondary">+ Record Payment</a>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">ASSIGNED PROPERTY</span>
+        <span class="stat-card-icon">🏢</span>
+      </div>
+      <h3 class="stat-value" style="font-size: 1.35rem;">{{ property_name|default('Assigned PG') }}</h3>
+      <div class="stat-context">{{ property_code|default('Code') }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">AVAILABLE BEDS</span>
+        <span class="stat-card-icon">✅</span>
+      </div>
+      <h3 class="stat-value">{{ available_beds|default(0) }}</h3>
+      <div class="stat-context">
+        <span class="badge badge-available">Ready to allocate</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">MAINTENANCE BEDS</span>
+        <span class="stat-card-icon">🧹</span>
+      </div>
+      <h3 class="stat-value">{{ maintenance_beds|default(0) }}</h3>
+      <div class="stat-context">
+        <span class="badge badge-maintenance">Needs cleaning/approval</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">ACTIVE TENANTS</span>
+        <span class="stat-card-icon">👥</span>
+      </div>
+      <h3 class="stat-value">{{ active_tenants|default(0) }}</h3>
+      <div class="stat-context">
+        <span class="badge badge-occupied">Currently residing</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">OPEN COMPLAINTS</span>
+        <span class="stat-card-icon">🔧</span>
+      </div>
+      <h3 class="stat-value">{{ open_complaints|default(0) }}</h3>
+      <div class="stat-context">
+        <span class="badge {% if open_complaints|default(0) > 0 %}badge-maintenance{% else %}badge-available{% endif %}">
+          Pending action
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3 style="margin: 0; font-size: 1.05rem;">Operational Actions</h3>
+    </div>
+    <div style="display: flex; gap: 0.85rem; flex-wrap: wrap;">
+      <a href="/manager/rooms" class="btn btn-secondary">View Rooms</a>
+      <a href="/manager/beds" class="btn btn-secondary">Manage Beds</a>
+      <a href="/manager/tenants" class="btn btn-secondary">Tenant Directory</a>
+      <a href="/manager/complaints" class="btn btn-secondary">Review Complaints</a>
+      <a href="/manager/notices" class="btn btn-secondary">Post Notice</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

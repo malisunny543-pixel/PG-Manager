@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{% if room %}Edit Room {{ room.room_number }}{% else %}Add New Room{% endif %}{% endblock %}
+{% block breadcrumbs %}Operations / <a href="{{ url_for('manager.rooms_index') }}">Rooms</a> / {% if room %}Edit{% else %}Create{% endif %}{% endblock %}
+{% block content %}
+<div style="max-width: 600px;">
+  <div class="card">
+    <div class="card-header">
+      <h2>{% if room %}Edit Room {{ room.room_number }}{% else %}Add Room to Property{% endif %}</h2>
+    </div>
+
+    <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="room_number">Room Number *</label>
+          <input type="text" id="room_number" name="room_number" class="form-control" required value="{{ room.room_number if room else '' }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="floor">Floor Number</label>
+          <input type="number" id="floor" name="floor" class="form-control" value="{{ room.floor if room else 0 }}">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="room_type">Room Sharing Type *</label>
+          <select id="room_type" name="room_type" class="form-control" required>
+            <option value="SINGLE" {% if room and room.room_type == 'SINGLE' %}selected{% endif %}>Single Sharing (1 Bed)</option>
+            <option value="DOUBLE" {% if not room or room.room_type == 'DOUBLE' %}selected{% endif %}>Double Sharing (2 Beds)</option>
+            <option value="TRIPLE" {% if room and room.room_type == 'TRIPLE' %}selected{% endif %}>Triple Sharing (3 Beds)</option>
+            <option value="FOUR_SHARING" {% if room and room.room_type == 'FOUR_SHARING' %}selected{% endif %}>Four Sharing (4 Beds)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="base_rent">Monthly Rent (₹) *</label>
+          <input type="number" step="0.01" id="base_rent" name="base_rent" class="form-control" required value="{{ room.base_rent if room else '8000.00' }}">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="default_deposit">Room Deposit Override (₹)</label>
+        <input type="number" step="0.01" id="default_deposit" name="default_deposit" class="form-control" value="{{ room.default_deposit if room and room.default_deposit else '' }}" placeholder="Leave blank for property default">
+      </div>
+
+      {% if room %}
+      <div class="form-group">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" name="is_active" {% if room.is_active %}checked{% endif %}>
+          <span style="font-size: 0.875rem;">Active Room</span>
+        </label>
+      </div>
+      {% endif %}
+
+      <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <button type="submit" class="btn btn-primary">Save Room</button>
+        <a href="{{ url_for('manager.rooms_index') }}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Audit Logs - PG Management System{% endblock %}
+{% block breadcrumbs %}Administration / Audit Logs{% endblock %}
+{% block content %}
+<div>
+  <div style="margin-bottom: 1.5rem;">
+    <h1>System Audit Logs</h1>
+    <p style="color: var(--slate-500); font-size: 0.875rem;">
+      Immutable audit trail of staff actions, bed allocations, payments, checkouts, and configuration changes.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Staff / Actor</th>
+            <th>Role</th>
+            <th>Action</th>
+            <th>Entity Type & ID</th>
+            <th>IP Address</th>
+            <th>Structured Metadata</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in logs %}
+          <tr>
+            <td>{{ a.created_at|format_date('%d %b %Y, %I:%M %p') }}</td>
+            <td><strong>{{ a.actor_first }} {{ a.actor_last }}</strong><br><span style="font-size: 0.75rem; color: var(--slate-500);">{{ a.actor_email }}</span></td>
+            <td><span class="badge badge-occupied">{{ a.actor_role }}</span></td>
+            <td><span class="badge badge-partial" style="font-family: monospace;">{{ a.action }}</span></td>
+            <td>{{ a.target_entity_type }} #{{ a.target_entity_id }}</td>
+            <td><span style="font-family: monospace; font-size: 0.8125rem;">{{ a.ip_address or '-' }}</span></td>
+            <td>
+              <pre style="background: var(--slate-100); padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); font-size: 0.75rem; max-width: 320px; overflow-x: auto; white-space: pre-wrap;">{{ a.details_json }}</pre>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" style="text-align: center; color: var(--slate-500); padding: 2rem;">No audit logs recorded yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

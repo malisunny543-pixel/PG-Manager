@@ -1,0 +1,421 @@
+{% extends "base.html" %}
+{% block title %}PG Manager — PG Management System{% endblock %}
+
+{% block public_layout %}
+<div class="landing-page-root">
+  <!-- 100% Full-Bleed Atmospheric Hero Environment -->
+  <section class="landing-hero-environment">
+    <!-- Atmospheric glows and ambient gradients -->
+    <div class="hero-atmosphere">
+      <div class="hero-ambient-glow-1"></div>
+      <div class="hero-ambient-glow-2"></div>
+      <div class="hero-ambient-glow-3"></div>
+    </div>
+
+    <!-- Navigation Visually INSIDE the Hero Atmosphere -->
+    <header class="landing-nav">
+      <div class="landing-nav-inner">
+        <div class="landing-nav-brand">
+          <a href="{{ url_for('auth.index') }}" class="landing-brand-link">
+            <span class="landing-brand-badge">PG</span>
+            <span class="landing-brand-name">PG Manager</span>
+          </a>
+          <span class="landing-brand-divider"></span>
+          <span class="landing-brand-tagline">Paying Guest Management System</span>
+        </div>
+        <div class="landing-nav-actions">
+          <a href="{{ url_for('auth.login') }}" class="btn btn-secondary landing-nav-btn">Login</a>
+          <a href="{{ url_for('auth.register') }}" class="btn btn-primary landing-nav-btn">Tenant Register</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Flash Messages Container -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="landing-alerts-container">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Centered Hero Content Wrapper -->
+    <div class="hero-content-wrapper">
+      <div class="landing-pill hero-elem hero-pill">
+        <span>⚡</span> Modern Multi-Branch PG Platform
+      </div>
+
+      <h1 class="landing-title hero-elem hero-title">
+        Smarter PG Management.<br>
+        <span class="hero-accent-text">Simpler Everyday Operations.</span>
+      </h1>
+      
+      <div class="landing-subtitle hero-elem hero-sub">
+        Paying Guest Management System &bull; PG Management System
+      </div>
+
+      <p class="landing-desc hero-elem hero-desc">
+        The unified operational platform engineered for modern hostel and PG accommodations. Effortlessly control multi-branch <strong>properties</strong>, track granular <strong>rooms and beds</strong> with atomic row-locking, manage <strong>tenants</strong> with KYC verification, automate monthly <strong>rent</strong> invoicing, record configurable <strong>deposits</strong>, calculate exact <strong>utilities</strong>, and resolve resident <strong>complaints</strong> with complete transparency.
+      </p>
+
+      <div class="landing-actions hero-elem hero-actions">
+        <a href="{{ url_for('auth.login') }}" class="landing-btn-lg landing-btn-primary">
+          Sign In to Portal &rarr;
+        </a>
+        <a href="{{ url_for('auth.register') }}" class="landing-btn-lg landing-btn-secondary">
+          Tenant Registration
+        </a>
+      </div>
+
+      <div class="landing-badges-strip hero-elem hero-strip">
+        <div class="landing-badge-item">
+          <span class="landing-badge-dot"></span> Multi-Branch Architecture
+        </div>
+        <div class="landing-badge-item">
+          <span class="landing-badge-dot"></span> Atomic Bed Row-Locking
+        </div>
+        <div class="landing-badge-item">
+          <span class="landing-badge-dot"></span> Exact DECIMAL Billing
+        </div>
+        <div class="landing-badge-item">
+          <span class="landing-badge-dot"></span> Strict RBAC Portals
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Browser Preview Mockup (Physically Emerging with Overlap) -->
+    <div class="landing-preview-wrapper motion-reveal">
+      <div class="browser-mockup">
+        <!-- Browser Window Titlebar -->
+        <div class="browser-bar">
+          <div class="browser-dots">
+            <span class="browser-dot dot-red"></span>
+            <span class="browser-dot dot-yellow"></span>
+            <span class="browser-dot dot-green"></span>
+          </div>
+          <div class="browser-address">
+            <span class="browser-lock">🔒</span>
+            <span>app.pgmanager.local/admin/dashboard</span>
+          </div>
+          <div class="browser-status">
+            <span class="status-live-dot"></span> Live Operations
+          </div>
+        </div>
+
+        <!-- Browser Body / PG Manager Real UI Representation -->
+        <div class="browser-content">
+          <div class="preview-header">
+            <div>
+              <div class="preview-title">Admin Operations Dashboard</div>
+              <div class="preview-subtitle">Global overview across all branches and properties</div>
+            </div>
+            <div class="preview-actions">
+              <span class="preview-btn preview-btn-primary">+ New Check-in</span>
+              <span class="preview-btn preview-btn-outline">+ Record Payment</span>
+            </div>
+          </div>
+
+          <!-- Preview KPI Grid -->
+          <div class="preview-kpi-grid">
+            <div class="preview-kpi-card">
+              <div class="preview-kpi-label">TOTAL PROPERTIES</div>
+              <div class="preview-kpi-val">4</div>
+              <div class="preview-kpi-sub">Active PG branches</div>
+            </div>
+            <div class="preview-kpi-card">
+              <div class="preview-kpi-label">TOTAL BEDS</div>
+              <div class="preview-kpi-val">120</div>
+              <div class="preview-kpi-sub">Capacity across rooms</div>
+            </div>
+            <div class="preview-kpi-card">
+              <div class="preview-kpi-label">OCCUPANCY RATE</div>
+              <div class="preview-kpi-val">88.3%</div>
+              <span class="preview-badge preview-badge-occupied">106 Occupied</span>
+            </div>
+            <div class="preview-kpi-card">
+              <div class="preview-kpi-label">AVAILABLE BEDS</div>
+              <div class="preview-kpi-val">10</div>
+              <span class="preview-badge preview-badge-available">Ready to allocate</span>
+            </div>
+            <div class="preview-kpi-card">
+              <div class="preview-kpi-label">UNDER MAINTENANCE</div>
+              <div class="preview-kpi-val">4</div>
+              <span class="preview-badge preview-badge-maintenance">Sanitary clearance</span>
+            </div>
+            <div class="preview-kpi-card">
+              <div class="preview-kpi-label">OVERDUE RENT</div>
+              <div class="preview-kpi-val">₹ 14,500.00</div>
+              <span class="preview-badge preview-badge-overdue">2 Invoices pending</span>
+            </div>
+          </div>
+
+          <!-- Preview Attention & Status Row -->
+          <div class="preview-split">
+            <div class="preview-panel">
+              <div class="preview-panel-header">
+                <span>Operational Attention Required</span>
+                <span class="preview-panel-tag">Live Alerts</span>
+              </div>
+              <div class="preview-attention-list">
+                <div class="preview-attention-item warning">
+                  <span class="item-icon">⚠️</span>
+                  <div>
+                    <strong>4 Beds Under Maintenance</strong>
+                    <p>Cleaning &amp; inspection sign-off required before allocation</p>
+                  </div>
+                </div>
+                <div class="preview-attention-item info">
+                  <span class="item-icon">🔧</span>
+                  <div>
+                    <strong>2 Open Resident Complaints</strong>
+                    <p>Room 204 electrical &amp; Room 102 plumbing tickets</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="preview-panel">
+              <div class="preview-panel-header">
+                <span>Bed Capacity &amp; Lifecycle Distribution</span>
+                <span class="preview-panel-tag">120 Total Beds</span>
+              </div>
+              <div class="preview-meter-bar">
+                <div class="meter-segment seg-occupied" style="width: 88.3%;" title="88.3% Occupied"></div>
+                <div class="meter-segment seg-available" style="width: 8.4%;" title="8.4% Available"></div>
+                <div class="meter-segment seg-maintenance" style="width: 3.3%;" title="3.3% Maintenance"></div>
+              </div>
+              <div class="preview-meter-legend">
+                <div><span class="legend-dot dot-occupied"></span> 106 Occupied</div>
+                <div><span class="legend-dot dot-available"></span> 10 Available</div>
+                <div><span class="legend-dot dot-maint"></span> 4 Maintenance</div>
+              </div>
+              <div class="preview-meter-stats">
+                <div class="meter-stat-item">
+                  <span class="meter-stat-num">106</span>
+                  <span class="meter-stat-lbl">Occupied</span>
+                </div>
+                <div class="meter-stat-item">
+                  <span class="meter-stat-num">10</span>
+                  <span class="meter-stat-lbl">Available</span>
+                </div>
+                <div class="meter-stat-item">
+                  <span class="meter-stat-num">4</span>
+                  <span class="meter-stat-lbl">Maintenance</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Clean Neutral Background for Content Sections -->
+  <main class="landing-main-content">
+    <div class="landing-content-container">
+      <!-- 4 Core Feature Capabilities Cards -->
+      <section style="margin-bottom: 5rem;" class="motion-reveal">
+        <div class="landing-section-header">
+          <div class="landing-section-eyebrow">Platform Capabilities</div>
+          <h2 class="landing-section-title">Built for Modern PG Operations</h2>
+          <p class="landing-section-desc">
+            Comprehensive tools engineered to eliminate double allocations, streamline monthly collections, and deliver a transparent resident experience.
+          </p>
+        </div>
+
+        <div class="landing-grid-4 motion-stagger">
+          <!-- Card 1: Properties -->
+          <div class="landing-card motion-card">
+            <div class="landing-card-icon">🏢</div>
+            <h3 class="landing-card-title">Properties &amp; Branches</h3>
+            <p class="landing-card-text">
+              Centralize multiple PG locations with dedicated manager assignments, branch-level property isolation, and configurable branch utility and deposit defaults.
+            </p>
+            <ul class="landing-card-list">
+              <li>Multi-branch property portfolio</li>
+              <li>Branch-level manager assignments</li>
+              <li>Custom utility rates &amp; deposit defaults</li>
+            </ul>
+          </div>
+
+          <!-- Card 2: Rooms & Beds -->
+          <div class="landing-card motion-card">
+            <div class="landing-card-icon">🛏️</div>
+            <h3 class="landing-card-title">Rooms &amp; Beds</h3>
+            <p class="landing-card-text">
+              Granular inventory for single, double, and triple occupancy. Strict state machine enforces cleaning and maintenance before any vacated bed is re-allocated.
+            </p>
+            <ul class="landing-card-list">
+              <li>Atomic row-locking check-ins</li>
+              <li>Enforced bed lifecycle state machine</li>
+              <li>Warden maintenance sign-off &amp; transfers</li>
+            </ul>
+          </div>
+
+          <!-- Card 3: Rent & Payments -->
+          <div class="landing-card motion-card">
+            <div class="landing-card-icon">💳</div>
+            <h3 class="landing-card-title">Rent &amp; Payments</h3>
+            <p class="landing-card-text">
+              Automated monthly invoicing with precise Decimal math. Track partial and full payments across UPI and bank transfers with live balance due calculation.
+            </p>
+            <ul class="landing-card-list">
+              <li>Automated monthly rent invoice runs</li>
+              <li>Partial payment tracking with balance due</li>
+              <li>Utility meter consumption calculations</li>
+            </ul>
+          </div>
+
+          <!-- Card 4: Tenant Management -->
+          <div class="landing-card motion-card">
+            <div class="landing-card-icon">👥</div>
+            <h3 class="landing-card-title">Tenant Management</h3>
+            <p class="landing-card-text">
+              Resident verification with emergency contacts and KYC proof. Transparent checkout inspections, itemized deductions, and maintenance ticket lifecycle.
+            </p>
+            <ul class="landing-card-list">
+              <li>Resident profile &amp; roommate directory</li>
+              <li>Maintenance ticket tracking &amp; alerts</li>
+              <li>Checkout inspection &amp; deposit settlement</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Deep Slate Operations Value Section -->
+      <section class="landing-everything motion-reveal">
+        <div class="landing-everything-header">
+          <div class="landing-section-eyebrow" style="color: var(--primary-200); margin-bottom: 0.5rem;">MISSION-CRITICAL ARCHITECTURE</div>
+          <h2 class="landing-everything-title">Everything You Need to Manage Your PG</h2>
+          <p class="landing-everything-desc">
+            A robust operational infrastructure designed for owners, wardens, and residents.
+          </p>
+        </div>
+
+        <div class="landing-everything-grid">
+          <div class="landing-feature-box">
+            <div class="landing-feature-icon">🛡️</div>
+            <div class="landing-feature-content">
+              <h4>Role-Based Access Control</h4>
+              <p>Distinct portals for Administrators, Property Managers, and Residents with server-side permission enforcement.</p>
+            </div>
+          </div>
+
+          <div class="landing-feature-box">
+            <div class="landing-feature-icon">⚡</div>
+            <div class="landing-feature-content">
+              <h4>Double-Allocation Prevention</h4>
+              <p>Database row locks (SELECT ... FOR UPDATE) prevent simultaneous check-in race conditions across concurrent sessions.</p>
+            </div>
+          </div>
+
+          <div class="landing-feature-box">
+            <div class="landing-feature-icon">🧹</div>
+            <div class="landing-feature-content">
+              <h4>Sanitary Bed Lifecycle</h4>
+              <p>Vacated beds automatically enter UNDER_MAINTENANCE and cannot be booked until authorized staff certifies deep cleaning.</p>
+            </div>
+          </div>
+
+          <div class="landing-feature-box">
+            <div class="landing-feature-icon">🧾</div>
+            <div class="landing-feature-content">
+              <h4>Transparent Checkout Settlement</h4>
+              <p>Itemized deductions for cleaning and damages with authorized administrative sign-off and refund calculation.</p>
+            </div>
+          </div>
+
+          <div class="landing-feature-box">
+            <div class="landing-feature-icon">📢</div>
+            <div class="landing-feature-content">
+              <h4>Targeted Notice Board</h4>
+              <p>Broadcast branch-specific maintenance announcements or global hostel notices directly to resident dashboards.</p>
+            </div>
+          </div>
+
+          <div class="landing-feature-box">
+            <div class="landing-feature-icon">📊</div>
+            <div class="landing-feature-content">
+              <h4>Executive Reports &amp; Audit Logs</h4>
+              <p>Live occupancy rates, collection efficiency analytics, defaulters list, and immutable administrative audit trails.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pre-Footer CTA Banner with Lavender/Indigo Atmosphere -->
+      <section class="landing-cta-banner motion-reveal">
+        <div class="landing-section-eyebrow" style="color: var(--primary-600); margin-bottom: 0.5rem;">GET STARTED TODAY</div>
+        <h2 class="landing-cta-title">Streamline Your PG Operations with Confidence</h2>
+        <p class="landing-cta-desc">
+          Join property owners, hostel wardens, and residents who rely on PG Manager for zero double-booking, transparent billing, and effortless everyday management.
+        </p>
+        <div class="landing-actions" style="margin-bottom: 0;">
+          <a href="{{ url_for('auth.login') }}" class="landing-btn-lg landing-btn-primary">
+            Sign In to Portal &rarr;
+          </a>
+          <a href="{{ url_for('auth.register') }}" class="landing-btn-lg landing-btn-secondary">
+            Tenant Registration
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <!-- Professional Footer -->
+    <footer class="landing-footer">
+      <div class="landing-footer-inner">
+        <div class="landing-footer-brand">
+          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;">
+            <span class="landing-brand-badge" style="font-size: 0.85rem; padding: 0.25rem 0.6rem;">PG</span>
+            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--slate-900);">PG Manager</h3>
+          </div>
+          <p>
+            Paying Guest Management System — High-reliability multi-property management platform for hostels, co-living spaces, and PG accommodations.
+          </p>
+        </div>
+
+        <div class="landing-footer-links">
+          <div class="landing-footer-col">
+            <h4>Portals</h4>
+            <ul>
+              <li><a href="{{ url_for('auth.login') }}">Staff &amp; Resident Login</a></li>
+              <li><a href="{{ url_for('auth.register') }}">Tenant Registration</a></li>
+            </ul>
+          </div>
+
+          <div class="landing-footer-col">
+            <h4>Architecture</h4>
+            <ul>
+              <li><span style="color: var(--slate-500);">Python 3.14 + Flask</span></li>
+              <li><span style="color: var(--slate-500);">MySQL 8.0 InnoDB</span></li>
+              <li><span style="color: var(--slate-500);">Row-Level Concurrency</span></li>
+            </ul>
+          </div>
+
+          <div class="landing-footer-col">
+            <h4>Security</h4>
+            <ul>
+              <li><span style="color: var(--slate-500);">Role-Based Isolation</span></li>
+              <li><span style="color: var(--slate-500);">CSRF Protection</span></li>
+              <li><span style="color: var(--slate-500);">Immutable Audit Trail</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="landing-footer-bottom">
+        <div>
+          &copy; 2026 PG Manager — Paying Guest Management System. All rights reserved.
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <a href="{{ url_for('auth.login') }}" style="color: var(--slate-500); text-decoration: none;">Login</a>
+          <span>&bull;</span>
+          <a href="{{ url_for('auth.register') }}" style="color: var(--slate-500); text-decoration: none;">Register</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+</div>
+{% endblock public_layout %}

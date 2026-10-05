@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Login - PG Management System{% endblock %}
+{% block public_container_class %}auth-layout-container{% endblock %}
+
+{% block public_content %}
+<div class="auth-split-wrapper motion-reveal">
+  <!-- Left: PG Manager Brand & Value Proposition Panel -->
+  <div class="auth-brand-panel">
+    <div class="auth-brand-header">
+      <div class="auth-brand-badge">PG</div>
+      <div class="auth-brand-names">
+        <span class="auth-brand-title">PG Manager</span>
+        <span class="auth-brand-sub">Paying Guest Management System</span>
+      </div>
+    </div>
+    
+    <div class="auth-brand-body">
+      <h2 class="auth-brand-headline">Manage your PG operations with confidence.</h2>
+      <p class="auth-brand-desc">
+        A unified, multi-branch operations platform engineered for modern hostel owners, wardens, and residents.
+      </p>
+
+      <div class="auth-value-list">
+        <div class="auth-value-item">
+          <span class="auth-value-check">✓</span>
+          <div>
+            <strong>Multi-Branch Properties</strong>
+            <span>Isolated branch operations and manager assignments.</span>
+          </div>
+        </div>
+        <div class="auth-value-item">
+          <span class="auth-value-check">✓</span>
+          <div>
+            <strong>Rooms &amp; Beds State Machine</strong>
+            <span>Atomic row-locking with mandatory sanitary clearance.</span>
+          </div>
+        </div>
+        <div class="auth-value-item">
+          <span class="auth-value-check">✓</span>
+          <div>
+            <strong>Rent Invoicing &amp; Payments</strong>
+            <span>Exact DECIMAL financial billing and balance tracking.</span>
+          </div>
+        </div>
+        <div class="auth-value-item">
+          <span class="auth-value-check">✓</span>
+          <div>
+            <strong>Resident Grievances &amp; KYC</strong>
+            <span>Complete ticket lifecycle and transparent checkouts.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-brand-footer">
+      <span>Enterprise Reliability &bull; MySQL 8.0 InnoDB</span>
+    </div>
+  </div>
+
+  <!-- Right: Account Login Form Panel -->
+  <div class="auth-form-panel">
+    <div class="auth-form-header">
+      <h2 class="auth-form-title">Account Login</h2>
+      <p class="auth-form-subtitle">Enter your registered email and password to continue.</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <input type="email" id="email" name="email" class="form-control auth-input" required placeholder="name@example.com" autofocus autocomplete="username">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input type="password" id="password" name="password" class="form-control auth-input" required placeholder="••••••••" autocomplete="current-password">
+      </div>
+
+      <button type="submit" class="btn btn-primary auth-submit-btn">Sign In to Portal &rarr;</button>
+    </form>
+
+    <div class="auth-form-footer">
+      <span>New tenant?</span>
+      <a href="{{ url_for('auth.register') }}" class="auth-register-link">Register here</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Manage Rooms - PG Management System{% endblock %}
+{% block breadcrumbs %}Administration / Rooms{% endblock %}
+{% block content %}
+<div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1>Rooms Directory</h1>
+      <p style="color: var(--slate-500); font-size: 0.875rem;">Manage rooms, sharing types, and bed capacities across properties.</p>
+    </div>
+    <a href="{{ url_for('admin.room_create') }}" class="btn btn-primary">+ Add Room</a>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="card" style="padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+    <form method="GET" style="display: flex; gap: 1rem; align-items: flex-end;">
+      <div class="form-group" style="margin-bottom: 0; min-width: 250px;">
+        <label class="form-label">Filter by Property</label>
+        <select name="property_id" class="form-control" onchange="this.form.submit()">
+          <option value="">-- All Properties --</option>
+          {% for p in properties %}
+            <option value="{{ p.id }}" {% if selected_prop|string == p.id|string %}selected{% endif %}>{{ p.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <a href="{{ url_for('admin.rooms_index') }}" class="btn btn-secondary">Clear Filter</a>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Room Number</th>
+            <th>Floor</th>
+            <th>Room Type</th>
+            <th>Monthly Rent</th>
+            <th>Deposit Override</th>
+            <th>Beds Available / Total</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rooms %}
+          <tr>
+            <td><strong>{{ r.property_name }}</strong></td>
+            <td><strong style="color: var(--primary-600);">Room {{ r.room_number }}</strong></td>
+            <td>{{ r.floor }}</td>
+            <td><span class="badge badge-occupied">{{ r.room_type }}</span></td>
+            <td><strong>{{ r.base_rent|currency }}</strong></td>
+            <td>{{ r.default_deposit|currency if r.default_deposit else 'Standard Property Deposit' }}</td>
+            <td>
+              <span class="badge badge-available">{{ r.available_beds or 0 }} Available</span>
+              <span style="color: var(--slate-500); font-size: 0.8125rem;">({{ r.total_beds }} total)</span>
+            </td>
+            <td>
+              {% if r.is_active %}
+                <span class="badge badge-available">Active</span>
+              {% else %}
+                <span class="badge badge-maintenance">Inactive</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{{ url_for('admin.room_edit', id=r.id) }}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Edit</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="9" style="text-align: center; color: var(--slate-500); padding: 2rem;">
+              No rooms found matching the criteria. Click "+ Add Room" to create one.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

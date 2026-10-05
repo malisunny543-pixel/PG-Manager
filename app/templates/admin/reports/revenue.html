@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Revenue Collections Report - PG Management System{% endblock %}
+{% block breadcrumbs %}Administration / Reports / Revenue{% endblock %}
+{% block content %}
+<div>
+  <div style="margin-bottom: 1.5rem;">
+    <h1>Revenue & Billing Report</h1>
+    <p style="color: var(--slate-500); font-size: 0.875rem;">Aggregated billing, collection, and outstanding metrics by property and month.</p>
+  </div>
+
+  <div class="card" style="padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+    <form method="GET" style="display: flex; gap: 1rem; align-items: flex-end;">
+      <div class="form-group" style="margin-bottom: 0; min-width: 200px;">
+        <label class="form-label">Billing Month</label>
+        <input type="month" name="billing_month" class="form-control" value="{{ selected_month }}" onchange="this.form.submit()">
+      </div>
+      <a href="{{ url_for('admin.report_revenue') }}" class="btn btn-secondary">All Months</a>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Property Branch</th>
+            <th>Billing Month</th>
+            <th>Invoices Issued</th>
+            <th>Total Billed</th>
+            <th>Total Collected</th>
+            <th>Outstanding Balance</th>
+            <th>Collection Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rev in report_data %}
+          <tr>
+            <td><strong>{{ rev.property_name }}</strong> ({{ rev.property_code }})</td>
+            <td><strong>{{ rev.billing_month }}</strong></td>
+            <td>{{ rev.invoice_count }}</td>
+            <td><strong>{{ rev.total_billed|currency }}</strong></td>
+            <td><strong style="color: var(--status-paid-text);">{{ rev.total_collected|currency }}</strong></td>
+            <td><strong style="color: {% if rev.total_outstanding > 0 %}#991b1b{% else %}#166534{% endif %};">{{ rev.total_outstanding|currency }}</strong></td>
+            <td>
+              {% if rev.total_billed and rev.total_billed > 0 %}
+                <strong>{{ ((rev.total_collected / rev.total_billed) * 100)|round(1) }}%</strong>
+              {% else %}
+                -
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" style="text-align: center; color: var(--slate-500); padding: 2rem;">No revenue billing records found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

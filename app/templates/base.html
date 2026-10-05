@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}PG Management System{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  {% if current_user %}
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <span class="brand-badge">PG</span>
+          <div class="brand-text">
+            <span class="brand-title">PG Manager</span>
+            <span class="brand-subtitle">Property Suite</span>
+          </div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        {% if current_user.role == 'ADMIN' %}
+          <div class="nav-section-label">OVERVIEW</div>
+          <a href="{{ url_for('admin.dashboard') }}" class="nav-link {% if request.path == '/admin/dashboard' %}active{% endif %}">
+            <span class="nav-icon">📊</span>
+            <span>Dashboard</span>
+          </a>
+
+          <div class="nav-section-label">PROPERTY OPERATIONS</div>
+          <a href="/admin/properties" class="nav-link {% if request.path.startswith('/admin/properties') %}active{% endif %}">
+            <span class="nav-icon">🏢</span>
+            <span>Properties</span>
+          </a>
+          <a href="/admin/rooms" class="nav-link {% if request.path.startswith('/admin/rooms') %}active{% endif %}">
+            <span class="nav-icon">🚪</span>
+            <span>Rooms</span>
+          </a>
+          <a href="/admin/beds" class="nav-link {% if request.path.startswith('/admin/beds') %}active{% endif %}">
+            <span class="nav-icon">🛏️</span>
+            <span>Beds</span>
+          </a>
+          <a href="/admin/tenants" class="nav-link {% if request.path.startswith('/admin/tenants') %}active{% endif %}">
+            <span class="nav-icon">👥</span>
+            <span>Tenants</span>
+          </a>
+
+          <div class="nav-section-label">FINANCE</div>
+          <a href="/admin/invoices" class="nav-link {% if request.path.startswith('/admin/invoices') %}active{% endif %}">
+            <span class="nav-icon">🧾</span>
+            <span>Invoices &amp; Rent</span>
+          </a>
+          <a href="/admin/payments" class="nav-link {% if request.path.startswith('/admin/payments') %}active{% endif %}">
+            <span class="nav-icon">💳</span>
+            <span>Payments</span>
+          </a>
+
+          <div class="nav-section-label">COMMUNICATION</div>
+          <a href="/admin/complaints" class="nav-link {% if request.path.startswith('/admin/complaints') %}active{% endif %}">
+            <span class="nav-icon">🔧</span>
+            <span>Complaints</span>
+          </a>
+          <a href="/admin/notices" class="nav-link {% if request.path.startswith('/admin/notices') %}active{% endif %}">
+            <span class="nav-icon">📢</span>
+            <span>Notices</span>
+          </a>
+
+          <div class="nav-section-label">INSIGHTS</div>
+          <a href="/admin/reports/occupancy" class="nav-link {% if request.path.startswith('/admin/reports') %}active{% endif %}">
+            <span class="nav-icon">📈</span>
+            <span>Reports</span>
+          </a>
+          <a href="/admin/audit-logs" class="nav-link {% if request.path.startswith('/admin/audit-logs') %}active{% endif %}">
+            <span class="nav-icon">🛡️</span>
+            <span>Audit Logs</span>
+          </a>
+        {% elif current_user.role == 'MANAGER' %}
+          <div class="nav-section-label">OVERVIEW</div>
+          <a href="{{ url_for('manager.dashboard') }}" class="nav-link {% if request.path == '/manager/dashboard' %}active{% endif %}">
+            <span class="nav-icon">📊</span>
+            <span>Dashboard</span>
+          </a>
+
+          <div class="nav-section-label">PROPERTY OPERATIONS</div>
+          <a href="/manager/rooms" class="nav-link {% if request.path.startswith('/manager/rooms') %}active{% endif %}">
+            <span class="nav-icon">🚪</span>
+            <span>Rooms</span>
+          </a>
+          <a href="/manager/beds" class="nav-link {% if request.path.startswith('/manager/beds') %}active{% endif %}">
+            <span class="nav-icon">🛏️</span>
+            <span>Beds</span>
+          </a>
+          <a href="/manager/tenants" class="nav-link {% if request.path.startswith('/manager/tenants') %}active{% endif %}">
+            <span class="nav-icon">👥</span>
+            <span>Tenants</span>
+          </a>
+
+          <div class="nav-section-label">COMMUNICATION</div>
+          <a href="/manager/complaints" class="nav-link {% if request.path.startswith('/manager/complaints') %}active{% endif %}">
+            <span class="nav-icon">🔧</span>
+            <span>Complaints</span>
+          </a>
+          <a href="/manager/notices" class="nav-link {% if request.path.startswith('/manager/notices') %}active{% endif %}">
+            <span class="nav-icon">📢</span>
+            <span>Notices</span>
+          </a>
+        {% elif current_user.role == 'TENANT' %}
+          <div class="nav-section-label">OVERVIEW</div>
+          <a href="{{ url_for('tenant.dashboard') }}" class="nav-link {% if request.path == '/tenant/dashboard' %}active{% endif %}">
+            <span class="nav-icon">📊</span>
+            <span>My Dashboard</span>
+          </a>
+
+          <div class="nav-section-label">MY STAY</div>
+          <a href="/tenant/tenancy" class="nav-link {% if request.path.startswith('/tenant/tenancy') %}active{% endif %}">
+            <span class="nav-icon">🛏️</span>
+            <span>My Bed &amp; Room</span>
+          </a>
+
+          <div class="nav-section-label">FINANCE</div>
+          <a href="/tenant/invoices" class="nav-link {% if request.path.startswith('/tenant/invoices') %}active{% endif %}">
+            <span class="nav-icon">🧾</span>
+            <span>Invoices</span>
+          </a>
+          <a href="/tenant/payments" class="nav-link {% if request.path.startswith('/tenant/payments') %}active{% endif %}">
+            <span class="nav-icon">💳</span>
+            <span>Payment History</span>
+          </a>
+
+          <div class="nav-section-label">COMMUNICATION</div>
+          <a href="/tenant/complaints" class="nav-link {% if request.path.startswith('/tenant/complaints') %}active{% endif %}">
+            <span class="nav-icon">🔧</span>
+            <span>My Complaints</span>
+          </a>
+          <a href="/tenant/notices" class="nav-link {% if request.path.startswith('/tenant/notices') %}active{% endif %}">
+            <span class="nav-icon">📢</span>
+            <span>Notices</span>
+          </a>
+        {% endif %}
+      </nav>
+    </aside>
+
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <!-- Main Container -->
+    <div class="main-wrapper">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="sidebar-toggle" class="btn btn-secondary mobile-menu-btn" aria-label="Toggle navigation menu">
+            <span class="hamburger-icon">☰</span>
+          </button>
+          <div class="topbar-breadcrumbs">
+            <span class="breadcrumb-app">PG Manager</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">{% block breadcrumbs %}Dashboard{% endblock %}</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <a href="{{ url_for('shared.notifications') }}" class="topbar-link" title="Notifications">
+            <span class="topbar-icon">🔔</span>
+            <span>Notifications</span>
+          </a>
+          <div class="topbar-divider"></div>
+          <div class="topbar-user">
+            <span class="badge badge-role badge-role-{{ current_user.role|lower }}">{{ current_user.role }}</span>
+            <a href="{{ url_for('shared.profile') }}" class="topbar-username" title="View Profile">
+              {{ current_user.first_name }} {{ current_user.last_name }}
+            </a>
+          </div>
+          <form method="POST" action="{{ url_for('auth.logout') }}" style="display: inline; margin: 0;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-secondary btn-sm" style="padding: 0.35rem 0.65rem; font-size: 0.8125rem;">Logout</button>
+          </form>
+        </div>
+      </header>
+
+      <main class="content-area">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+  {% else %}
+  <!-- Public Layout -->
+  {% block public_layout %}
+  <header class="public-topbar">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <a href="{{ url_for('auth.index') }}" style="color: var(--slate-900); text-decoration: none; display: flex; align-items: center; gap: 0.6rem;">
+        <span style="background: var(--primary-600); color: #fff; padding: 0.25rem 0.6rem; border-radius: var(--radius-sm); font-size: 0.95rem; font-weight: 800; letter-spacing: -0.02em;">PG</span>
+        <span style="font-weight: 800; font-size: 1.2rem; color: var(--slate-900); letter-spacing: -0.02em;">PG Manager</span>
+      </a>
+      <span style="display: inline-block; height: 1.25rem; width: 1px; background-color: var(--slate-200); margin: 0 0.25rem;"></span>
+      <span style="font-size: 0.8125rem; color: var(--slate-500); font-weight: 500;">Paying Guest Management System</span>
+    </div>
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+      <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">Login</a>
+      <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Tenant Register</a>
+    </div>
+  </header>
+
+  <main class="public-container {% block public_container_class %}{% endblock %}">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block public_content %}{% endblock %}
+  </main>
+
+  {% block public_footer %}{% endblock %}
+  {% endblock public_layout %}
+  {% endif %}
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>
